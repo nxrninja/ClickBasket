@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Get cart items
 try {
-    $cart_query = "SELECT c.*, p.title, p.price, p.short_description, p.file_size, 
+    $cart_query = "SELECT c.*, p.title, p.price, p.short_description, p.file_size, p.screenshots,
                    cat.name as category_name
                    FROM cart c
                    JOIN products p ON c.product_id = p.id
@@ -135,18 +135,30 @@ include 'includes/header.php';
                                 <div class="row align-center">
                                     <!-- Product Image -->
                                     <div class="col-md-2 col-3">
-                                        <div class="product-thumbnail" style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; height: 80px; border-radius: 0.5rem;">
-                                            <i class="fas fa-<?php 
-                                                echo match($item['category_name']) {
-                                                    'Web Templates' => 'code',
-                                                    'Mobile Apps' => 'mobile-alt',
-                                                    'Graphics & Design' => 'palette',
-                                                    'Software Tools' => 'tools',
-                                                    'E-books' => 'book',
-                                                    default => 'file'
-                                                };
-                                            ?>"></i>
-                                        </div>
+                                        <?php 
+                                        $screenshots = json_decode($item['screenshots'] ?? '[]', true);
+                                        if (!empty($screenshots) && isset($screenshots[0])): 
+                                        ?>
+                                            <div class="product-thumbnail" style="height: 80px; border-radius: 0.5rem; overflow: hidden; border: 1px solid var(--border-color); background: var(--bg-secondary);">
+                                                <img src="<?php echo SITE_URL . '/' . $screenshots[0]; ?>" 
+                                                     alt="<?php echo htmlspecialchars($item['title']); ?>"
+                                                     style="width: 100%; height: 100%; object-fit: contain; display: block;"
+                                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'display: flex; align-items: center; justify-content: center; height: 100%; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); color: white; font-size: 1.5rem;\'><i class=\'fas fa-image\'></i></div>';">
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="product-thumbnail" style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; height: 80px; border-radius: 0.5rem;">
+                                                <i class="fas fa-<?php 
+                                                    echo match($item['category_name']) {
+                                                        'Web Templates' => 'code',
+                                                        'Mobile Apps' => 'mobile-alt',
+                                                        'Graphics & Design' => 'palette',
+                                                        'Software Tools' => 'tools',
+                                                        'E-books' => 'book',
+                                                        default => 'file'
+                                                    };
+                                                ?>"></i>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                     
                                     <!-- Product Info -->
@@ -335,9 +347,19 @@ include 'includes/header.php';
                         <?php if (!empty($recommended_products)): ?>
                             <?php foreach ($recommended_products as $product): ?>
                                 <div class="recommended-item" style="display: flex; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
-                                    <div style="width: 50px; height: 50px; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; flex-shrink: 0;">
-                                        <i class="fas fa-file"></i>
-                                    </div>
+                                    <?php 
+                                    $rec_screenshots = json_decode($product['screenshots'] ?? '[]', true);
+                                    if (!empty($rec_screenshots) && isset($rec_screenshots[0])): 
+                                    ?>
+                                        <img src="<?php echo SITE_URL . '/' . $rec_screenshots[0]; ?>" 
+                                             alt="<?php echo htmlspecialchars($product['title']); ?>"
+                                             style="width: 50px; height: 50px; object-fit: contain; background: var(--bg-secondary); border-radius: 0.5rem; border: 1px solid var(--border-color); flex-shrink: 0;"
+                                             onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'width: 50px; height: 50px; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; flex-shrink: 0;\'><i class=\'fas fa-image\'></i></div>';"
+                                    <?php else: ?>
+                                        <div style="width: 50px; height: 50px; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; flex-shrink: 0;">
+                                            <i class="fas fa-file"></i>
+                                        </div>
+                                    <?php endif; ?>
                                     <div style="flex: 1;">
                                         <h6 style="color: var(--text-primary); margin-bottom: 0.25rem; font-size: 0.875rem; line-height: 1.3;">
                                             <?php echo htmlspecialchars(strlen($product['title']) > 30 ? substr($product['title'], 0, 30) . '...' : $product['title']); ?>

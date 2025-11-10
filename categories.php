@@ -55,8 +55,8 @@ include 'includes/header.php';
             Product Categories
         </h1>
         <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
-            Explore our carefully curated categories of premium digital products. 
-            Find exactly what you need for your next project.
+            Explore our comprehensive range of product categories. 
+            From fashion to electronics, find everything you need in one place.
         </p>
     </div>
 
@@ -125,6 +125,13 @@ include 'includes/header.php';
                                         <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
                                             <i class="fas fa-<?php 
                                                 echo match($category['slug']) {
+                                                    'fashion' => 'tshirt',
+                                                    'mobile' => 'mobile-alt',
+                                                    'beauty' => 'palette',
+                                                    'electronics' => 'laptop',
+                                                    'toys' => 'gamepad',
+                                                    'furniture' => 'couch',
+                                                    // Legacy support
                                                     'web-templates' => 'code',
                                                     'mobile-apps' => 'mobile-alt',
                                                     'graphics-design' => 'palette',
@@ -174,18 +181,34 @@ include 'includes/header.php';
                                     <?php foreach ($featured_products[$category['id']] as $product): ?>
                                         <div class="col-md-4 mb-3">
                                             <div class="card product-preview">
-                                                <div class="product-image" style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; height: 150px;">
-                                                    <i class="fas fa-<?php 
-                                                        echo match($category['slug']) {
-                                                            'web-templates' => 'code',
-                                                            'mobile-apps' => 'mobile-alt',
-                                                            'graphics-design' => 'palette',
-                                                            'software-tools' => 'tools',
-                                                            'ebooks' => 'book',
-                                                            default => 'file'
-                                                        };
-                                                    ?>"></i>
-                                                </div>
+                                                <?php 
+                                                $product_screenshots = json_decode($product['screenshots'], true);
+                                                if (!empty($product_screenshots) && isset($product_screenshots[0])): 
+                                                ?>
+                                                    <img src="<?php echo SITE_URL . '/' . $product_screenshots[0]; ?>" 
+                                                         alt="<?php echo htmlspecialchars($product['title']); ?>"
+                                                         style="width: 100%; height: 150px; object-fit: contain; background: var(--bg-secondary); border-radius: 0.5rem 0.5rem 0 0;">
+                                                <?php else: ?>
+                                                    <div class="product-image" style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; height: 150px;">
+                                                        <i class="fas fa-<?php 
+                                                            echo match($category['slug']) {
+                                                                'fashion' => 'tshirt',
+                                                                'mobile' => 'mobile-alt',
+                                                                'beauty' => 'palette',
+                                                                'electronics' => 'laptop',
+                                                                'toys' => 'gamepad',
+                                                                'furniture' => 'couch',
+                                                                // Legacy support
+                                                                'web-templates' => 'code',
+                                                                'mobile-apps' => 'mobile-alt',
+                                                                'graphics-design' => 'palette',
+                                                                'software-tools' => 'tools',
+                                                                'ebooks' => 'book',
+                                                                default => 'file'
+                                                            };
+                                                        ?>"></i>
+                                                    </div>
+                                                <?php endif; ?>
                                                 <div class="card-body" style="padding: 1rem;">
                                                     <h6 style="color: var(--text-primary); margin-bottom: 0.5rem; line-height: 1.3;">
                                                         <?php echo htmlspecialchars(strlen($product['title']) > 40 ? substr($product['title'], 0, 40) . '...' : $product['title']); ?>

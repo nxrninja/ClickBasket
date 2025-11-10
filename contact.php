@@ -276,9 +276,9 @@ include 'includes/header.php';
                             <i class="fas fa-question"></i>
                             Frequently Asked Questions
                         </a>
-                        <a href="<?php echo SITE_URL; ?>/downloads.php" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-download"></i>
-                            Download Issues
+                        <a href="<?php echo SITE_URL; ?>/reviews.php" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-star"></i>
+                            My Reviews
                         </a>
                         <a href="<?php echo SITE_URL; ?>/orders.php" class="btn btn-secondary btn-sm">
                             <i class="fas fa-box"></i>

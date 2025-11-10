@@ -69,95 +69,134 @@ include 'includes/header.php';
         </p>
     </div>
 
-    <!-- Filters Section -->
-    <div class="row mb-4">
-        <!-- Mobile Filter Toggle -->
-        <div class="col-12 d-block d-md-none mb-3">
-            <button class="btn btn-secondary btn-block" onclick="toggleMobileFilters()">
-                <i class="fas fa-filter"></i>
-                Filters & Sort
-            </button>
-        </div>
-
-        <!-- Filters Sidebar -->
-        <div class="col-md-3">
-            <div id="filters-panel" class="card" style="display: none;">
-                <div class="card-header">
-                    <h5 style="margin: 0;">
-                        <i class="fas fa-filter"></i>
-                        Filters
-                    </h5>
+    <!-- Filter Navigation Bar -->
+    <div class="filter-navbar" style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm);">
+        <form method="GET" id="filters-form" class="filter-form">
+            <!-- Preserve search query -->
+            <?php if (!empty($filters['search'])): ?>
+                <input type="hidden" name="search" value="<?php echo htmlspecialchars($filters['search']); ?>">
+            <?php endif; ?>
+            
+            <div class="filter-slots">
+                <!-- Category Slot -->
+                <div class="filter-slot">
+                    <label class="filter-label">
+                        <i class="fas fa-th-large"></i>
+                        Category
+                    </label>
+                    <select name="category" class="filter-select" onchange="submitFilters()">
+                        <option value="">All Categories</option>
+                        <?php foreach ($categories as $category): ?>
+                            <option value="<?php echo htmlspecialchars($category['slug']); ?>" 
+                                    <?php echo $filters['category'] === $category['slug'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($category['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
-                <div class="card-body">
-                    <form method="GET" id="filters-form">
-                        <!-- Preserve search query -->
-                        <?php if (!empty($filters['search'])): ?>
-                            <input type="hidden" name="search" value="<?php echo htmlspecialchars($filters['search']); ?>">
-                        <?php endif; ?>
 
-                        <!-- Category Filter -->
-                        <div class="form-group">
-                            <label class="form-label">Category</label>
-                            <select name="category" class="form-control" onchange="submitFilters()">
-                                <option value="">All Categories</option>
-                                <?php foreach ($categories as $category): ?>
-                                    <option value="<?php echo htmlspecialchars($category['slug']); ?>" 
-                                            <?php echo $filters['category'] === $category['slug'] ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($category['name']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                <!-- Price Range Slot -->
+                <div class="filter-slot">
+                    <label class="filter-label">
+                        <i class="fas fa-rupee-sign"></i>
+                        Price Range
+                    </label>
+                    <div class="price-inputs">
+                        <input type="number" name="min_price" class="filter-input" 
+                               placeholder="Min" value="<?php echo htmlspecialchars($filters['min_price']); ?>"
+                               min="0" step="0.01">
+                        <span class="price-separator">-</span>
+                        <input type="number" name="max_price" class="filter-input" 
+                               placeholder="Max" value="<?php echo htmlspecialchars($filters['max_price']); ?>"
+                               min="0" step="0.01">
+                    </div>
+                </div>
 
-                        <!-- Price Range Filter -->
-                        <div class="form-group">
-                            <label class="form-label">Price Range</label>
-                            <div class="row">
-                                <div class="col-6">
-                                    <input type="number" name="min_price" class="form-control" 
-                                           placeholder="Min" value="<?php echo htmlspecialchars($filters['min_price']); ?>"
-                                           min="0" step="0.01">
-                                </div>
-                                <div class="col-6">
-                                    <input type="number" name="max_price" class="form-control" 
-                                           placeholder="Max" value="<?php echo htmlspecialchars($filters['max_price']); ?>"
-                                           min="0" step="0.01">
-                                </div>
-                            </div>
-                            <small style="color: var(--text-muted);">
-                                Range: <?php echo format_currency($price_ranges['min_price'] ?? 0); ?> - 
-                                <?php echo format_currency($price_ranges['max_price'] ?? 0); ?>
-                            </small>
-                        </div>
+                <!-- Sort Slot -->
+                <div class="filter-slot">
+                    <label class="filter-label">
+                        <i class="fas fa-sort"></i>
+                        Sort By
+                    </label>
+                    <select name="sort" class="filter-select" onchange="submitFilters()">
+                        <option value="newest" <?php echo $filters['sort'] === 'newest' ? 'selected' : ''; ?>>Newest First</option>
+                        <option value="popular" <?php echo $filters['sort'] === 'popular' ? 'selected' : ''; ?>>Most Popular</option>
+                        <option value="price_low" <?php echo $filters['sort'] === 'price_low' ? 'selected' : ''; ?>>Price: Low to High</option>
+                        <option value="price_high" <?php echo $filters['sort'] === 'price_high' ? 'selected' : ''; ?>>Price: High to Low</option>
+                    </select>
+                </div>
 
-                        <!-- Sort Options -->
-                        <div class="form-group">
-                            <label class="form-label">Sort By</label>
-                            <select name="sort" class="form-control" onchange="submitFilters()">
-                                <option value="newest" <?php echo $filters['sort'] === 'newest' ? 'selected' : ''; ?>>Newest First</option>
-                                <option value="popular" <?php echo $filters['sort'] === 'popular' ? 'selected' : ''; ?>>Most Popular</option>
-                                <option value="price_low" <?php echo $filters['sort'] === 'price_low' ? 'selected' : ''; ?>>Price: Low to High</option>
-                                <option value="price_high" <?php echo $filters['sort'] === 'price_high' ? 'selected' : ''; ?>>Price: High to Low</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fas fa-search"></i>
-                                Apply Filters
-                            </button>
-                            <a href="<?php echo SITE_URL; ?>/products.php" class="btn btn-secondary btn-block mt-2">
-                                <i class="fas fa-times"></i>
-                                Clear All
-                            </a>
-                        </div>
-                    </form>
+                <!-- Action Buttons Slot -->
+                <div class="filter-slot filter-actions">
+                    <button type="submit" class="btn btn-primary filter-btn">
+                        <i class="fas fa-search"></i>
+                        Apply
+                    </button>
+                    <a href="<?php echo SITE_URL; ?>/products.php" class="btn btn-secondary filter-btn">
+                        <i class="fas fa-times"></i>
+                        Clear
+                    </a>
                 </div>
             </div>
-        </div>
 
-        <!-- Products Grid -->
-        <div class="col-md-9">
+            <!-- Active Filters Display -->
+            <?php if (!empty($filters['category']) || !empty($filters['min_price']) || !empty($filters['max_price']) || $filters['sort'] !== 'newest'): ?>
+                <div class="active-filters">
+                    <span class="active-filters-label">Active Filters:</span>
+                    <?php if (!empty($filters['category'])): ?>
+                        <?php
+                        $category_name = '';
+                        foreach ($categories as $cat) {
+                            if ($cat['slug'] === $filters['category']) {
+                                $category_name = $cat['name'];
+                                break;
+                            }
+                        }
+                        ?>
+                        <span class="filter-tag">
+                            <i class="fas fa-th-large"></i>
+                            <?php echo htmlspecialchars($category_name); ?>
+                            <a href="?<?php echo http_build_query(array_merge($filters, ['category' => ''])); ?>" class="remove-filter">×</a>
+                        </span>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($filters['min_price']) || !empty($filters['max_price'])): ?>
+                        <span class="filter-tag">
+                            <i class="fas fa-rupee-sign"></i>
+                            <?php 
+                            if (!empty($filters['min_price']) && !empty($filters['max_price'])) {
+                                echo format_currency($filters['min_price']) . ' - ' . format_currency($filters['max_price']);
+                            } elseif (!empty($filters['min_price'])) {
+                                echo 'From ' . format_currency($filters['min_price']);
+                            } else {
+                                echo 'Up to ' . format_currency($filters['max_price']);
+                            }
+                            ?>
+                            <a href="?<?php echo http_build_query(array_merge($filters, ['min_price' => '', 'max_price' => ''])); ?>" class="remove-filter">×</a>
+                        </span>
+                    <?php endif; ?>
+                    
+                    <?php if ($filters['sort'] !== 'newest'): ?>
+                        <span class="filter-tag">
+                            <i class="fas fa-sort"></i>
+                            <?php 
+                            echo match($filters['sort']) {
+                                'popular' => 'Most Popular',
+                                'price_low' => 'Price: Low to High',
+                                'price_high' => 'Price: High to Low',
+                                default => 'Newest First'
+                            };
+                            ?>
+                            <a href="?<?php echo http_build_query(array_merge($filters, ['sort' => 'newest'])); ?>" class="remove-filter">×</a>
+                        </span>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        </form>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-section">
             <!-- Search Bar (Mobile) -->
             <div class="d-block d-md-none mb-3">
                 <form method="GET" class="search-form">
@@ -180,27 +219,39 @@ include 'includes/header.php';
                 <div class="products-grid">
                     <?php foreach ($products as $product_item): ?>
                         <div class="product-card fade-in">
-                            <div class="product-image" style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
-                                <i class="fas fa-<?php 
-                                    echo match($product_item['category_name']) {
-                                        'Web Templates' => 'code',
-                                        'Mobile Apps' => 'mobile-alt',
-                                        'Graphics & Design' => 'palette',
-                                        'Software Tools' => 'tools',
-                                        'E-books' => 'book',
-                                        default => 'file'
-                                    };
-                                ?>"></i>
-                            </div>
+                            <?php 
+                            $screenshots = json_decode($product_item['screenshots'] ?? '[]', true);
+                            if (!empty($screenshots) && isset($screenshots[0])): 
+                            ?>
+                                <img src="<?php echo SITE_URL . '/' . $screenshots[0]; ?>" 
+                                     alt="<?php echo htmlspecialchars($product_item['title']); ?>"
+                                     class="product-image">
+                            <?php else: ?>
+                                <div class="product-image" style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                    <i class="fas fa-<?php 
+                                        echo match($product_item['category_name']) {
+                                            'Fashion' => 'tshirt',
+                                            'Mobile' => 'mobile-alt',
+                                            'Beauty' => 'palette',
+                                            'Electronics' => 'laptop',
+                                            'Toys' => 'gamepad',
+                                            'Furniture' => 'couch',
+                                            // Legacy support
+                                            'Web Templates' => 'code',
+                                            'Mobile Apps' => 'mobile-alt',
+                                            'Graphics & Design' => 'palette',
+                                            'Software Tools' => 'tools',
+                                            'E-books' => 'book',
+                                            default => 'file'
+                                        };
+                                    ?>"></i>
+                                </div>
+                            <?php endif; ?>
                             <div class="product-info">
                                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
                                     <span style="background: var(--primary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">
                                         <?php echo htmlspecialchars($product_item['category_name']); ?>
                                     </span>
-                                    <div style="color: var(--text-muted); font-size: 0.75rem;">
-                                        <i class="fas fa-download"></i>
-                                        <?php echo number_format($product_item['downloads_count']); ?>
-                                    </div>
                                 </div>
                                 
                                 <h3 class="product-title"><?php echo htmlspecialchars($product_item['title']); ?></h3>
@@ -297,45 +348,56 @@ include 'includes/header.php';
     </div>
 </div>
 
-<style>
-#filters-panel {
-    position: sticky;
-    top: 100px;
-}
-
-@media (min-width: 768px) {
-    #filters-panel {
-        display: block !important;
-    }
-}
-
-.product-card {
-    animation-delay: 0.1s;
-}
-
-.product-card:nth-child(2) { animation-delay: 0.2s; }
-.product-card:nth-child(3) { animation-delay: 0.3s; }
-.product-card:nth-child(4) { animation-delay: 0.4s; }
-</style>
-
 <script>
-function toggleMobileFilters() {
-    const panel = document.getElementById('filters-panel');
-    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-}
-
 function submitFilters() {
     document.getElementById('filters-form').submit();
 }
 
 // Auto-submit price filters after user stops typing
-let priceTimeout;
-document.querySelectorAll('input[name="min_price"], input[name="max_price"]').forEach(input => {
-    input.addEventListener('input', function() {
-        clearTimeout(priceTimeout);
-        priceTimeout = setTimeout(() => {
-            document.getElementById('filters-form').submit();
-        }, 1000);
+document.addEventListener('DOMContentLoaded', function() {
+    let priceTimeout;
+    const priceInputs = document.querySelectorAll('input[name="min_price"], input[name="max_price"]');
+    
+    priceInputs.forEach(input => {
+        input.addEventListener('input', () => {
+            clearTimeout(priceTimeout);
+            priceTimeout = setTimeout(() => {
+                document.getElementById('filters-form').submit();
+            }, 1500);
+        });
+    });
+    
+    // Add smooth scroll behavior for filter navbar
+    const filterNavbar = document.querySelector('.filter-navbar');
+    if (filterNavbar) {
+        // Add scroll event listener for sticky behavior enhancement
+        let lastScrollY = window.scrollY;
+        
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                // Scrolling down - hide navbar
+                filterNavbar.style.transform = 'translateY(-100%)';
+            } else {
+                // Scrolling up - show navbar
+                filterNavbar.style.transform = 'translateY(0)';
+            }
+            
+            lastScrollY = currentScrollY;
+        });
+    }
+    
+    // Enhanced filter interactions
+    const filterSelects = document.querySelectorAll('.filter-select');
+    filterSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            // Add visual feedback
+            this.style.borderColor = 'var(--primary-color)';
+            setTimeout(() => {
+                this.style.borderColor = '';
+            }, 300);
+        });
     });
 });
 </script>

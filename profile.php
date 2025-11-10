@@ -82,14 +82,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 try {
     $stats_query = "SELECT 
         (SELECT COUNT(*) FROM orders WHERE user_id = ? AND order_status = 'completed') as total_orders,
-        (SELECT COUNT(*) FROM downloads WHERE user_id = ?) as total_downloads,
+        (SELECT COUNT(*) FROM product_ratings WHERE user_id = ?) as total_reviews,
         (SELECT COALESCE(SUM(final_amount), 0) FROM orders WHERE user_id = ? AND payment_status = 'completed') as total_spent
     ";
     $stats_stmt = $db->prepare($stats_query);
     $stats_stmt->execute([get_current_user_id(), get_current_user_id(), get_current_user_id()]);
     $user_stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
-    $user_stats = ['total_orders' => 0, 'total_downloads' => 0, 'total_spent' => 0];
+    $user_stats = ['total_orders' => 0, 'total_reviews' => 0, 'total_spent' => 0];
 }
 
 include 'includes/header.php';
@@ -128,8 +128,8 @@ include 'includes/header.php';
                             <small style="color: var(--text-secondary);">Total Orders</small>
                         </div>
                         <div class="col-12 mb-3">
-                            <h4 style="color: var(--success-color); margin-bottom: 0.25rem;"><?php echo $user_stats['total_downloads']; ?></h4>
-                            <small style="color: var(--text-secondary);">Downloads</small>
+                            <h4 style="color: var(--success-color); margin-bottom: 0.25rem;"><?php echo $user_stats['total_reviews']; ?></h4>
+                            <small style="color: var(--text-secondary);">Reviews</small>
                         </div>
                         <div class="col-12">
                             <h4 style="color: var(--secondary-color); margin-bottom: 0.25rem;"><?php echo format_currency($user_stats['total_spent']); ?></h4>
@@ -155,9 +155,9 @@ include 'includes/header.php';
                             <i class="fas fa-box"></i>
                             My Orders
                         </a>
-                        <a href="<?php echo SITE_URL; ?>/downloads.php" class="profile-nav-item">
-                            <i class="fas fa-download"></i>
-                            Downloads
+                        <a href="<?php echo SITE_URL; ?>/reviews.php" class="profile-nav-item">
+                            <i class="fas fa-star"></i>
+                            My Reviews
                         </a>
                     </nav>
                 </div>
@@ -183,9 +183,9 @@ include 'includes/header.php';
                                 <i class="fas fa-box"></i>
                                 Orders
                             </a>
-                            <a href="<?php echo SITE_URL; ?>/downloads.php" class="btn btn-sm btn-secondary">
-                                <i class="fas fa-download"></i>
-                                Downloads
+                            <a href="<?php echo SITE_URL; ?>/reviews.php" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-star"></i>
+                                My Reviews
                             </a>
                         </div>
                     </div>

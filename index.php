@@ -1,16 +1,32 @@
 <?php
-$page_title = 'ClickBasket - Premium Digital Products Marketplace';
+$page_title = 'ClickBasket - Trending E-commerce Products';
 $mobile_title = 'ClickBasket';
-$meta_description = 'Discover premium digital products, templates, apps, and resources. Download instantly from top creators worldwide.';
+$meta_description = 'Discover trending products in fashion, electronics, beauty, toys, furniture and more. Shop the most popular items with instant delivery.';
 
 require_once 'config/config.php';
 require_once 'classes/Product.php';
 
-// Get featured products
+// Get trending products and featured products
 $database = new Database();
 $db = $database->getConnection();
 
-// We'll create the Product class next, for now let's create a simple query
+// Get trending products (based on orders and recent activity)
+try {
+    $trending_query = "SELECT p.*, c.name as category_name,
+                       COALESCE((SELECT COUNT(*) FROM order_items oi WHERE oi.product_id = p.id), 0) as trending_score
+                       FROM products p 
+                       LEFT JOIN categories c ON p.category_id = c.id 
+                       WHERE p.is_active = 1 
+                       ORDER BY trending_score DESC, p.created_at DESC 
+                       LIMIT 12";
+    $trending_stmt = $db->prepare($trending_query);
+    $trending_stmt->execute();
+    $trending_products = $trending_stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $trending_products = [];
+}
+
+// Get featured products
 try {
     $query = "SELECT p.*, c.name as category_name 
               FROM products p 
@@ -38,32 +54,102 @@ try {
 include 'includes/header.php';
 ?>
 
-<!-- Hero Section -->
-<section class="hero">
+<!-- Trending Products Section -->
+<section class="trending-products" style="padding: 3rem 0; background: var(--bg-primary);">
     <div class="container">
-        <div class="hero-content fade-in">
-            <h1 class="hero-title">
-                Premium Digital Products
-                <br>
-                <span style="color: var(--secondary-color);">Made Simple</span>
+        <div class="text-center mb-5">
+            <h1 style="color: var(--text-primary); margin-bottom: 1rem; font-size: 2.5rem;">
+                <i class="fas fa-fire" style="color: var(--secondary-color);"></i>
+                Trending Products
             </h1>
-            <p class="hero-subtitle">
-                Discover thousands of high-quality templates, apps, and digital resources 
-                from top creators worldwide. Download instantly and start creating.
+            <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto; font-size: 1.1rem;">
+                Discover the most popular products right now. These items are trending based on purchases and customer engagement.
             </p>
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
-                <a href="<?php echo SITE_URL; ?>/products.php" class="btn btn-secondary btn-lg">
-                    <i class="fas fa-search"></i>
-                    Explore Products
-                </a>
-                <?php if (!is_logged_in()): ?>
-                    <a href="<?php echo SITE_URL; ?>/register.php" class="btn btn-primary btn-lg">
-                        <i class="fas fa-user-plus"></i>
-                        Get Started Free
-                    </a>
-                <?php endif; ?>
-            </div>
         </div>
+
+        <?php if (!empty($trending_products)): ?>
+            <div class="products-grid">
+                <?php foreach ($trending_products as $product): ?>
+                    <div class="product-card fade-in">
+                        <?php 
+                        $screenshots = json_decode($product['screenshots'] ?? '[]', true);
+                        if (!empty($screenshots) && isset($screenshots[0])): 
+                        ?>
+                            <img src="<?php echo SITE_URL . '/' . $screenshots[0]; ?>" 
+                                 alt="<?php echo htmlspecialchars($product['title']); ?>"
+                                 class="product-image">
+                        <?php else: ?>
+                            <div class="product-image" style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                <i class="fas fa-<?php 
+                                    echo match($product['category_name']) {
+                                        'Fashion' => 'tshirt',
+                                        'Mobile' => 'mobile-alt',
+                                        'Beauty' => 'palette',
+                                        'Electronics' => 'laptop',
+                                        'Toys' => 'gamepad',
+                                        'Furniture' => 'couch',
+                                        // Legacy support
+                                        'Web Templates' => 'code',
+                                        'Mobile Apps' => 'mobile-alt',
+                                        'Graphics & Design' => 'palette',
+                                        'Software Tools' => 'tools',
+                                        'E-books' => 'book',
+                                        default => 'file'
+                                    };
+                                ?>"></i>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <div class="product-info">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                <span style="background: var(--secondary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">
+                                    <i class="fas fa-fire"></i> Trending
+                                </span>
+                            </div>
+                            
+                            <h3 class="product-title"><?php echo htmlspecialchars($product['title']); ?></h3>
+                            <p class="product-description"><?php echo htmlspecialchars($product['short_description']); ?></p>
+                            
+                            <div style="margin-top: auto;">
+                                <div class="product-price" style="margin-bottom: 1rem;"><?php echo format_currency($product['price']); ?></div>
+                                
+                                <div class="product-actions">
+                                    <a href="<?php echo SITE_URL; ?>/product.php?id=<?php echo $product['id']; ?>" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                        View Details
+                                    </a>
+                                    <?php if (is_logged_in()): ?>
+                                        <button class="btn btn-secondary btn-sm add-to-cart" data-product-id="<?php echo $product['id']; ?>">
+                                            <i class="fas fa-cart-plus"></i>
+                                            Add to Cart
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="<?php echo SITE_URL; ?>/products.php" class="btn btn-primary btn-lg">
+                    <i class="fas fa-th-large"></i>
+                    View All Products
+                </a>
+            </div>
+        <?php else: ?>
+            <div class="text-center" style="padding: 3rem 0;">
+                <i class="fas fa-fire" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                <h3 style="color: var(--text-secondary); margin-bottom: 1rem;">No Trending Products Yet</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">
+                    Products will appear here as they gain popularity through purchases and customer engagement.
+                </p>
+                <a href="<?php echo SITE_URL; ?>/products.php" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search"></i>
+                    Browse All Products
+                </a>
+            </div>
+        <?php endif; ?>
     </div>
 </section>
 
@@ -92,10 +178,10 @@ include 'includes/header.php';
             <div class="col-6 col-md-3">
                 <div style="padding: 1rem;">
                     <h3 style="color: var(--primary-color); font-size: 2rem; margin-bottom: 0.5rem;">
-                        <i class="fas fa-download"></i>
-                        100K+
+                        <i class="fas fa-users"></i>
+                        50K+
                     </h3>
-                    <p style="color: var(--text-secondary); margin: 0;">Downloads</p>
+                    <p style="color: var(--text-secondary); margin: 0;">Happy Customers</p>
                 </div>
             </div>
             <div class="col-6 col-md-3">
@@ -172,18 +258,34 @@ include 'includes/header.php';
             <div class="products-grid">
                 <?php foreach ($featured_products as $product): ?>
                     <div class="product-card">
-                        <div class="product-image" style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
-                            <i class="fas fa-<?php 
-                                echo match($product['category_name']) {
-                                    'Web Templates' => 'code',
-                                    'Mobile Apps' => 'mobile-alt',
-                                    'Graphics & Design' => 'palette',
-                                    'Software Tools' => 'tools',
-                                    'E-books' => 'book',
-                                    default => 'file'
-                                };
-                            ?>"></i>
-                        </div>
+                        <?php 
+                        $screenshots = json_decode($product['screenshots'] ?? '[]', true);
+                        if (!empty($screenshots) && isset($screenshots[0])): 
+                        ?>
+                            <img src="<?php echo SITE_URL . '/' . $screenshots[0]; ?>" 
+                                 alt="<?php echo htmlspecialchars($product['title']); ?>"
+                                 class="product-image">
+                        <?php else: ?>
+                            <div class="product-image" style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                <i class="fas fa-<?php 
+                                    echo match($product['category_name']) {
+                                        'Fashion' => 'tshirt',
+                                        'Mobile' => 'mobile-alt',
+                                        'Beauty' => 'palette',
+                                        'Electronics' => 'laptop',
+                                        'Toys' => 'gamepad',
+                                        'Furniture' => 'couch',
+                                        // Legacy support
+                                        'Web Templates' => 'code',
+                                        'Mobile Apps' => 'mobile-alt',
+                                        'Graphics & Design' => 'palette',
+                                        'Software Tools' => 'tools',
+                                        'E-books' => 'book',
+                                        default => 'file'
+                                    };
+                                ?>"></i>
+                            </div>
+                        <?php endif; ?>
                         <div class="product-info">
                             <h3 class="product-title"><?php echo htmlspecialchars($product['title']); ?></h3>
                             <p class="product-description"><?php echo htmlspecialchars($product['short_description']); ?></p>
@@ -254,11 +356,11 @@ include 'includes/header.php';
             
             <div class="col-md-4 text-center mb-4">
                 <div style="width: 80px; height: 80px; background: var(--success-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                    <i class="fas fa-download" style="color: white; font-size: 2rem;"></i>
+                    <i class="fas fa-star" style="color: white; font-size: 2rem;"></i>
                 </div>
-                <h4 style="color: var(--text-primary); margin-bottom: 1rem;">3. Instant Download</h4>
+                <h4 style="color: var(--text-primary); margin-bottom: 1rem;">3. Rate & Review</h4>
                 <p style="color: var(--text-secondary);">
-                    Get immediate access to your purchased products with secure download links
+                    Share your experience and help other customers make informed decisions
                 </p>
             </div>
         </div>

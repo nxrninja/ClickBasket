@@ -4,6 +4,19 @@ require_once 'config/config.php';
 // Get current page for navigation
 $current_page = basename($_SERVER['PHP_SELF'], '.php');
 $page_title = $page_title ?? 'ClickBasket - Digital Products Store';
+
+// Get categories for navigation
+$nav_categories = [];
+try {
+    $database = new Database();
+    $db = $database->getConnection();
+    $nav_query = "SELECT id, name, slug FROM categories WHERE is_active = 1 ORDER BY name";
+    $nav_stmt = $db->prepare($nav_query);
+    $nav_stmt->execute();
+    $nav_categories = $nav_stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $nav_categories = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
@@ -22,12 +35,12 @@ $page_title = $page_title ?? 'ClickBasket - Digital Products Store';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Meta tags for SEO -->
-    <meta name="description" content="<?php echo $meta_description ?? 'ClickBasket - Your trusted digital products marketplace. Download premium templates, apps, and digital resources.'; ?>">
-    <meta name="keywords" content="<?php echo $meta_keywords ?? 'digital products, templates, apps, downloads, marketplace'; ?>">
+    <meta name="description" content="<?php echo $meta_description ?? 'ClickBasket - Your trusted e-commerce marketplace. Shop fashion, electronics, beauty, toys, furniture and more.'; ?>">
+    <meta name="keywords" content="<?php echo $meta_keywords ?? 'ecommerce, fashion, electronics, beauty, toys, furniture, online shopping, marketplace'; ?>">
     
     <!-- Open Graph tags -->
     <meta property="og:title" content="<?php echo htmlspecialchars($page_title); ?>">
-    <meta property="og:description" content="<?php echo $meta_description ?? 'Your trusted digital products marketplace'; ?>">
+    <meta property="og:description" content="<?php echo $meta_description ?? 'Your trusted e-commerce marketplace'; ?>">
     <meta property="og:type" content="website">
     <meta property="og:url" content="<?php echo SITE_URL . $_SERVER['REQUEST_URI']; ?>">
     
@@ -64,11 +77,20 @@ $page_title = $page_title ?? 'ClickBasket - Digital Products Store';
                     <?php echo SITE_NAME; ?>
                 </a>
                 
-                <ul class="navbar-nav">
-                    <li><a href="<?php echo SITE_URL; ?>" class="<?php echo $current_page === 'index' ? 'active' : ''; ?>">Home</a></li>
-                    <li><a href="<?php echo SITE_URL; ?>/products.php" class="<?php echo $current_page === 'products' ? 'active' : ''; ?>">Products</a></li>
-                    <li><a href="<?php echo SITE_URL; ?>/categories.php" class="<?php echo $current_page === 'categories' ? 'active' : ''; ?>">Categories</a></li>
-                    <li><a href="<?php echo SITE_URL; ?>/contact.php" class="<?php echo $current_page === 'contact' ? 'active' : ''; ?>">Contact</a></li>
+                <!-- Mobile Navigation Toggle -->
+                <button class="mobile-nav-toggle" onclick="toggleMobileNav()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="navbar-nav" id="navbar-nav">
+                    <li><a href="<?php echo SITE_URL; ?>" class="<?php echo $current_page === 'index' ? 'active' : ''; ?>">
+                        <i class="fas fa-home"></i> Home
+                    </a></li>
+                    
+                    <!-- All Categories Link -->
+                    <li><a href="<?php echo SITE_URL; ?>/categories.php" class="<?php echo $current_page === 'categories' ? 'active' : ''; ?>">
+                        <i class="fas fa-th-large"></i> All Categories
+                    </a></li>
                 </ul>
                 
                 <div class="navbar-actions">
@@ -105,8 +127,8 @@ $page_title = $page_title ?? 'ClickBasket - Digital Products Store';
                                 <a href="<?php echo SITE_URL; ?>/orders.php" class="dropdown-item">
                                     <i class="fas fa-box"></i> My Orders
                                 </a>
-                                <a href="<?php echo SITE_URL; ?>/downloads.php" class="dropdown-item">
-                                    <i class="fas fa-download"></i> Downloads
+                                <a href="<?php echo SITE_URL; ?>/wishlist.php" class="dropdown-item">
+                                    <i class="fas fa-heart"></i> My Wishlist
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a href="<?php echo SITE_URL; ?>/logout.php" class="dropdown-item">
@@ -119,6 +141,53 @@ $page_title = $page_title ?? 'ClickBasket - Digital Products Store';
                         <a href="<?php echo SITE_URL; ?>/register.php" class="btn btn-primary btn-sm">Sign Up</a>
                     <?php endif; ?>
                 </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Category Navigation Bar -->
+    <nav class="category-nav">
+        <div class="container">
+            <div class="category-navbar">
+                <div class="category-nav-scroll">
+                    <ul class="category-nav-list" id="category-nav-list">
+                        <?php if (!empty($nav_categories)): ?>
+                            <?php foreach ($nav_categories as $category): ?>
+                                <li class="category-nav-item">
+                                    <a href="<?php echo SITE_URL; ?>/products.php?category=<?php echo urlencode($category['slug']); ?>" 
+                                       class="category-nav-link <?php echo (isset($_GET['category']) && $_GET['category'] === $category['slug']) ? 'active' : ''; ?>">
+                                        <i class="fas fa-<?php 
+                                            echo match($category['slug']) {
+                                                'fashion' => 'tshirt',
+                                                'mobile' => 'mobile-alt',
+                                                'beauty' => 'palette',
+                                                'electronics' => 'laptop',
+                                                'toys' => 'gamepad',
+                                                'furniture' => 'couch',
+                                                // Legacy support
+                                                'web-templates' => 'code',
+                                                'mobile-apps' => 'mobile-alt',
+                                                'graphics-design' => 'palette',
+                                                'software-tools' => 'tools',
+                                                'ebooks' => 'book',
+                                                default => 'folder'
+                                            };
+                                        ?>"></i>
+                                        <span><?php echo htmlspecialchars($category['name']); ?></span>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+                
+                <!-- Scroll buttons for better navigation -->
+                <button class="category-scroll-btn category-scroll-left" onclick="scrollCategoryNav('left')">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="category-scroll-btn category-scroll-right" onclick="scrollCategoryNav('right')">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -169,3 +238,109 @@ $page_title = $page_title ?? 'ClickBasket - Digital Products Store';
         <?php endif; ?>
 
         <!-- Page Content Starts Here -->
+        
+        <!-- Navigation Overlay -->
+        <div class="nav-overlay" id="nav-overlay" onclick="closeMobileNav()"></div>
+        
+        <script>
+        // Mobile Navigation Functions
+        function toggleMobileNav() {
+            const navMenu = document.getElementById('navbar-nav');
+            const overlay = document.getElementById('nav-overlay');
+            const toggle = document.querySelector('.mobile-nav-toggle i');
+            
+            navMenu.classList.toggle('show');
+            overlay.classList.toggle('show');
+            
+            // Toggle hamburger/close icon
+            if (navMenu.classList.contains('show')) {
+                toggle.className = 'fas fa-times';
+            } else {
+                toggle.className = 'fas fa-bars';
+            }
+        }
+        
+        function closeMobileNav() {
+            const navMenu = document.getElementById('navbar-nav');
+            const overlay = document.getElementById('nav-overlay');
+            const toggle = document.querySelector('.mobile-nav-toggle i');
+            
+            navMenu.classList.remove('show');
+            overlay.classList.remove('show');
+            toggle.className = 'fas fa-bars';
+        }
+        
+        // Close mobile nav on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileNav();
+            }
+        });
+        
+        // Enhanced navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add smooth scrolling for horizontal navigation
+            const navbar = document.querySelector('.navbar-nav');
+            if (navbar) {
+                // Add scroll buttons for better UX on desktop
+                let isScrolling = false;
+                
+                navbar.addEventListener('wheel', function(e) {
+                    if (window.innerWidth > 768 && !isScrolling) {
+                        e.preventDefault();
+                        isScrolling = true;
+                        
+                        this.scrollLeft += e.deltaY;
+                        
+                        setTimeout(() => {
+                            isScrolling = false;
+                        }, 100);
+                    }
+                });
+            }
+            
+            // Highlight active category based on current page
+            const currentUrl = window.location.href;
+            const navLinks = document.querySelectorAll('.category-nav-link');
+            
+            navLinks.forEach(link => {
+                if (currentUrl.includes(link.getAttribute('href'))) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Initialize category navigation scroll buttons
+            updateCategoryScrollButtons();
+        });
+        
+        // Category navigation scroll functionality
+        function scrollCategoryNav(direction) {
+            const scrollContainer = document.querySelector('.category-nav-scroll');
+            const scrollAmount = 200;
+            
+            if (direction === 'left') {
+                scrollContainer.scrollLeft -= scrollAmount;
+            } else {
+                scrollContainer.scrollLeft += scrollAmount;
+            }
+            
+            setTimeout(updateCategoryScrollButtons, 100);
+        }
+        
+        function updateCategoryScrollButtons() {
+            const scrollContainer = document.querySelector('.category-nav-scroll');
+            const leftBtn = document.querySelector('.category-scroll-left');
+            const rightBtn = document.querySelector('.category-scroll-right');
+            
+            if (scrollContainer && leftBtn && rightBtn) {
+                const isAtStart = scrollContainer.scrollLeft <= 0;
+                const isAtEnd = scrollContainer.scrollLeft >= (scrollContainer.scrollWidth - scrollContainer.clientWidth);
+                
+                leftBtn.style.display = isAtStart ? 'none' : 'flex';
+                rightBtn.style.display = isAtEnd ? 'none' : 'flex';
+            }
+        }
+        
+        // Update scroll buttons on window resize
+        window.addEventListener('resize', updateCategoryScrollButtons);
+        </script>

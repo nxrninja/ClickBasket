@@ -90,9 +90,6 @@
                             <li style="margin-bottom: 0.5rem;">
                                 <a href="<?php echo SITE_URL; ?>/orders.php" style="color: var(--text-secondary); text-decoration: none; transition: color 0.3s ease;">My Orders</a>
                             </li>
-                            <li style="margin-bottom: 0.5rem;">
-                                <a href="<?php echo SITE_URL; ?>/downloads.php" style="color: var(--text-secondary); text-decoration: none; transition: color 0.3s ease;">Downloads</a>
-                            </li>
                         <?php else: ?>
                             <li style="margin-bottom: 0.5rem;">
                                 <a href="<?php echo SITE_URL; ?>/login.php" style="color: var(--text-secondary); text-decoration: none; transition: color 0.3s ease;">Login</a>

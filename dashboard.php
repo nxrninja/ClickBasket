@@ -38,11 +38,11 @@ try {
     $total_orders = $orders_data['total'] ?? 0;
     $total_spent = $orders_data['spent'] ?? 0;
 
-    // Total downloads
-    $downloads_query = "SELECT COUNT(*) as total FROM downloads WHERE user_id = ?";
-    $downloads_stmt = $db->prepare($downloads_query);
-    $downloads_stmt->execute([$user_id]);
-    $total_downloads = $downloads_stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+    // Total reviews
+    $reviews_query = "SELECT COUNT(*) as total FROM product_ratings WHERE user_id = ?";
+    $reviews_stmt = $db->prepare($reviews_query);
+    $reviews_stmt->execute([$user_id]);
+    $total_reviews = $reviews_stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
     // Cart items
     $cart_query = "SELECT COUNT(*) as total FROM cart WHERE user_id = ?";
@@ -62,16 +62,16 @@ try {
     $recent_orders_stmt->execute([$user_id]);
     $recent_orders = $recent_orders_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Recent downloads
-    $recent_downloads_query = "SELECT d.*, p.title, p.file_size 
-                              FROM downloads d 
-                              JOIN products p ON d.product_id = p.id 
-                              WHERE d.user_id = ? 
-                              ORDER BY d.created_at DESC 
-                              LIMIT 5";
-    $recent_downloads_stmt = $db->prepare($recent_downloads_query);
-    $recent_downloads_stmt->execute([$user_id]);
-    $recent_downloads = $recent_downloads_stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Recent reviews
+    $recent_reviews_query = "SELECT pr.*, p.title as product_title 
+                            FROM product_ratings pr 
+                            JOIN products p ON pr.product_id = p.id 
+                            WHERE pr.user_id = ? 
+                            ORDER BY pr.created_at DESC 
+                            LIMIT 5";
+    $recent_reviews_stmt = $db->prepare($recent_reviews_query);
+    $recent_reviews_stmt->execute([$user_id]);
+    $recent_reviews = $recent_reviews_stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Recommended products (based on user's purchase history)
     $recommended_query = "SELECT p.* FROM products p 
@@ -89,11 +89,10 @@ try {
 
 } catch (Exception $e) {
     $total_orders = 0;
-    $total_spent = 0;
-    $total_downloads = 0;
+    $total_reviews = 0;
     $cart_items = 0;
     $recent_orders = [];
-    $recent_downloads = [];
+    $recent_reviews = [];
     $recommended_products = [];
 }
 
@@ -138,11 +137,11 @@ include 'includes/header.php';
         <div class="stat-card">
             <div class="card" style="text-align: center; padding: 1.5rem;">
                 <div style="width: 60px; height: 60px; background: var(--success-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
-                    <i class="fas fa-download"></i>
+                    <i class="fas fa-star"></i>
                 </div>
-                <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;"><?php echo $total_downloads; ?></h3>
-                <p style="color: var(--text-secondary); margin: 0;">Downloads</p>
-                <a href="downloads.php" class="btn btn-success btn-sm" style="margin-top: 0.5rem;">View Downloads</a>
+                <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;"><?php echo $total_reviews; ?></h3>
+                <p style="color: var(--text-secondary); margin: 0;">Reviews</p>
+                <a href="reviews.php" class="btn btn-success btn-sm" style="margin-top: 0.5rem;">View Reviews</a>
             </div>
         </div>
 
@@ -217,46 +216,46 @@ include 'includes/header.php';
                 </div>
             </div>
 
-            <!-- Recent Downloads -->
+            <!-- Recent Reviews -->
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex justify-between align-center">
                         <h5 style="margin: 0;">
-                            <i class="fas fa-download"></i>
-                            Recent Downloads
+                            <i class="fas fa-star"></i>
+                            Recent Reviews
                         </h5>
-                        <a href="downloads.php" class="btn btn-success btn-sm">View All</a>
+                        <a href="reviews.php" class="btn btn-success btn-sm">View All</a>
                     </div>
                 </div>
                 <div class="card-body">
-                    <?php if (!empty($recent_downloads)): ?>
-                        <?php foreach ($recent_downloads as $download): ?>
-                            <div class="download-item" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border-color);">
+                    <?php if (!empty($recent_reviews)): ?>
+                        <?php foreach ($recent_reviews as $review): ?>
+                            <div class="review-item" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border-color);">
                                 <div style="display: flex; align-items: center; gap: 1rem;">
-                                    <div style="width: 40px; height: 40px; background: var(--success-color); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: white;">
-                                        <i class="fas fa-file"></i>
+                                    <div style="width: 40px; height: 40px; background: var(--warning-color); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: white;">
+                                        <i class="fas fa-star"></i>
                                     </div>
                                     <div>
                                         <h6 style="color: var(--text-primary); margin-bottom: 0.25rem;">
-                                            <?php echo htmlspecialchars($download['title']); ?>
+                                            <?php echo htmlspecialchars($review['product_title']); ?>
                                         </h6>
                                         <small style="color: var(--text-muted);">
-                                            <?php echo date('M j, Y', strtotime($download['created_at'])); ?> • 
-                                            <?php echo htmlspecialchars($download['file_size']); ?>
+                                            <?php echo date('M j, Y', strtotime($review['created_at'])); ?> • 
+                                            <?php echo str_repeat('★', $review['rating']) . str_repeat('☆', 5 - $review['rating']); ?>
                                         </small>
                                     </div>
                                 </div>
                                 <div>
                                     <small style="color: var(--text-muted);">
-                                        <?php echo $download['download_count']; ?>/<?php echo $download['max_downloads']; ?> downloads
+                                        <?php echo $review['rating']; ?>/5 stars
                                     </small>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                            <i class="fas fa-download" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                            <p>No downloads yet. Purchase products to access downloads!</p>
+                            <i class="fas fa-star" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                            <p>No reviews yet. Purchase and review products to share your experience!</p>
                             <a href="products.php" class="btn btn-success">Browse Products</a>
                         </div>
                     <?php endif; ?>
@@ -338,9 +337,18 @@ include 'includes/header.php';
                     <div class="card-body">
                         <?php foreach (array_slice($recommended_products, 0, 3) as $product): ?>
                             <div class="recommended-item" style="display: flex; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
-                                <div style="width: 50px; height: 50px; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; flex-shrink: 0;">
-                                    <i class="fas fa-file"></i>
-                                </div>
+                                <?php 
+                                $dash_screenshots = json_decode($product['screenshots'], true);
+                                if (!empty($dash_screenshots) && isset($dash_screenshots[0])): 
+                                ?>
+                                    <img src="<?php echo SITE_URL . '/' . $dash_screenshots[0]; ?>" 
+                                         alt="<?php echo htmlspecialchars($product['title']); ?>"
+                                         style="width: 50px; height: 50px; object-fit: contain; background: var(--bg-secondary); border-radius: 0.5rem; border: 1px solid var(--border-color); flex-shrink: 0;">
+                                <?php else: ?>
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; flex-shrink: 0;">
+                                        <i class="fas fa-file"></i>
+                                    </div>
+                                <?php endif; ?>
                                 <div style="flex: 1;">
                                     <h6 style="color: var(--text-primary); margin-bottom: 0.25rem; font-size: 0.875rem; line-height: 1.3;">
                                         <?php echo htmlspecialchars(strlen($product['title']) > 30 ? substr($product['title'], 0, 30) . '...' : $product['title']); ?>

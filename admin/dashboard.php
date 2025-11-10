@@ -112,6 +112,32 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
+        /* Ensure CSS variables are loaded with fallbacks */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+        }
+        
+        body {
+            background-color: var(--bg-secondary, #f8fafc) !important;
+            color: var(--text-primary, #1e293b) !important;
+            margin: 0;
+            padding: 0;
+        }
+        
         .admin-layout {
             display: flex;
             min-height: 100vh;
@@ -132,12 +158,15 @@ try {
             transform: translateX(-100%);
         }
         
+        
         .admin-main {
             flex: 1;
             margin-left: 250px;
             background: var(--bg-secondary);
             min-height: 100vh;
             transition: margin-left 0.3s ease;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
         
         .admin-main.expanded {
@@ -229,6 +258,24 @@ try {
             padding: 1.5rem;
             border: 1px solid var(--border-color);
             margin-bottom: 2rem;
+            overflow: visible;
+            position: relative;
+            scroll-behavior: smooth;
+            contain: layout style;
+        }
+        
+        .chart-container canvas {
+            max-width: 100% !important;
+            max-height: 100% !important;
+            display: block;
+            position: relative;
+        }
+        
+        /* Prevent automatic scrolling on chart interactions */
+        .chart-container:focus,
+        .chart-container canvas:focus {
+            outline: none;
+            scroll-behavior: auto;
         }
         
         .data-table {
@@ -485,7 +532,9 @@ try {
                                 <i class="fas fa-chart-line"></i>
                                 Revenue Overview
                             </h5>
-                            <canvas id="revenueChart" height="100"></canvas>
+                            <div style="position: relative; height: 300px;">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
                         </div>
                     </div>
                     
@@ -495,7 +544,9 @@ try {
                                 <i class="fas fa-chart-pie"></i>
                                 Order Status
                             </h5>
-                            <canvas id="orderStatusChart"></canvas>
+                            <div style="position: relative; height: 300px;">
+                                <canvas id="orderStatusChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -638,14 +689,20 @@ try {
     <script>
         // Theme toggle
         function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             
             const themeIcon = document.querySelector('[onclick="toggleTheme()"] i');
-            themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            if (themeIcon) {
+                themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            }
+            
+            // Force body background update
+            document.body.style.backgroundColor = newTheme === 'dark' ? '#1e293b' : '#f8fafc';
+            document.body.style.color = newTheme === 'dark' ? '#f8fafc' : '#1e293b';
         }
 
         // Initialize theme
@@ -654,7 +711,13 @@ try {
             document.documentElement.setAttribute('data-theme', savedTheme);
             
             const themeIcon = document.querySelector('[onclick="toggleTheme()"] i');
-            themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            if (themeIcon) {
+                themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            }
+            
+            // Ensure body has proper background
+            document.body.style.backgroundColor = 'var(--bg-secondary)';
+            document.body.style.color = 'var(--text-primary)';
         });
 
         // Sidebar toggle
@@ -666,7 +729,13 @@ try {
         }
 
         // Revenue Chart
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        const revenueCanvas = document.getElementById('revenueChart');
+        const revenueCtx = revenueCanvas.getContext('2d');
+        
+        // Set fixed canvas size to prevent automatic growth
+        revenueCanvas.style.width = '100%';
+        revenueCanvas.style.height = '300px';
+        
         const revenueChart = new Chart(revenueCtx, {
             type: 'line',
             data: {
@@ -688,9 +757,27 @@ try {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                },
+                layout: {
+                    padding: {
+                        top: 10,
+                        bottom: 10,
+                        left: 10,
+                        right: 10
+                    }
+                },
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Revenue: ₹' + context.parsed.y.toLocaleString('en-IN');
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -698,7 +785,7 @@ try {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return '$' + value.toLocaleString();
+                                return '₹' + value.toLocaleString('en-IN');
                             }
                         }
                     }
@@ -707,7 +794,13 @@ try {
         });
 
         // Order Status Chart
-        const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+        const orderStatusCanvas = document.getElementById('orderStatusChart');
+        const orderStatusCtx = orderStatusCanvas.getContext('2d');
+        
+        // Set fixed canvas size to prevent automatic growth
+        orderStatusCanvas.style.width = '100%';
+        orderStatusCanvas.style.height = '300px';
+        
         const orderStatusChart = new Chart(orderStatusCtx, {
             type: 'doughnut',
             data: {
@@ -725,6 +818,17 @@ try {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                },
+                layout: {
+                    padding: {
+                        top: 10,
+                        bottom: 10,
+                        left: 10,
+                        right: 10
+                    }
+                },
                 plugins: {
                     legend: {
                         position: 'bottom'
@@ -737,6 +841,71 @@ try {
         setInterval(() => {
             location.reload();
         }, 300000);
+        
+        // Prevent chart resize on window resize
+        window.addEventListener('resize', function() {
+            if (revenueChart) {
+                revenueChart.resize();
+                // Ensure canvas doesn't grow beyond container
+                const revenueCanvas = document.getElementById('revenueChart');
+                if (revenueCanvas) {
+                    revenueCanvas.style.maxWidth = '100%';
+                    revenueCanvas.style.maxHeight = '300px';
+                }
+            }
+            
+            if (orderStatusChart) {
+                orderStatusChart.resize();
+                // Ensure canvas doesn't grow beyond container
+                const orderCanvas = document.getElementById('orderStatusChart');
+                if (orderCanvas) {
+                    orderCanvas.style.maxWidth = '100%';
+                    orderCanvas.style.maxHeight = '300px';
+                }
+            }
+        });
+        
+        // Prevent automatic scrolling on chart interactions
+        function preventChartScroll() {
+            const chartContainers = document.querySelectorAll('.chart-container');
+            const chartCanvases = document.querySelectorAll('.chart-container canvas');
+            
+            // Prevent scroll on chart container focus
+            chartContainers.forEach(container => {
+                container.addEventListener('focus', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+                
+                container.addEventListener('scroll', function(e) {
+                    e.preventDefault();
+                    this.scrollTop = 0;
+                    this.scrollLeft = 0;
+                    return false;
+                });
+            });
+            
+            // Prevent scroll on canvas interactions
+            chartCanvases.forEach(canvas => {
+                canvas.addEventListener('wheel', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+                
+                canvas.addEventListener('touchmove', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+                
+                canvas.addEventListener('focus', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+            });
+        }
+        
+        // Initialize scroll prevention after charts are loaded
+        setTimeout(preventChartScroll, 1000);
 
         // Real-time clock
         function updateClock() {
