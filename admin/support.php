@@ -141,22 +141,27 @@ try {
         <div class="admin-main">
             <div class="admin-header">
                 <h1 style="color: var(--text-primary); margin: 0;">Support Management</h1>
-                <div style="display: flex; gap: 0.5rem;">
-                    <form method="GET" style="display: flex; gap: 0.5rem;">
-                        <select name="status" class="form-control" onchange="this.form.submit()">
-                            <option value="all">All Status</option>
-                            <option value="open" <?php echo $status_filter === 'open' ? 'selected' : ''; ?>>Open</option>
-                            <option value="in_progress" <?php echo $status_filter === 'in_progress' ? 'selected' : ''; ?>>In Progress</option>
-                            <option value="resolved" <?php echo $status_filter === 'resolved' ? 'selected' : ''; ?>>Resolved</option>
-                            <option value="closed" <?php echo $status_filter === 'closed' ? 'selected' : ''; ?>>Closed</option>
-                        </select>
-                        <select name="priority" class="form-control" onchange="this.form.submit()">
-                            <option value="all">All Priority</option>
-                            <option value="high" <?php echo $priority_filter === 'high' ? 'selected' : ''; ?>>High</option>
-                            <option value="medium" <?php echo $priority_filter === 'medium' ? 'selected' : ''; ?>>Medium</option>
-                            <option value="low" <?php echo $priority_filter === 'low' ? 'selected' : ''; ?>>Low</option>
-                        </select>
-                    </form>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button onclick="toggleTheme()" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <form method="GET" style="display: flex; gap: 0.5rem;">
+                            <select name="status" class="form-control" onchange="this.form.submit()">
+                                <option value="all">All Status</option>
+                                <option value="open" <?php echo $status_filter === 'open' ? 'selected' : ''; ?>>Open</option>
+                                <option value="in_progress" <?php echo $status_filter === 'in_progress' ? 'selected' : ''; ?>>In Progress</option>
+                                <option value="resolved" <?php echo $status_filter === 'resolved' ? 'selected' : ''; ?>>Resolved</option>
+                                <option value="closed" <?php echo $status_filter === 'closed' ? 'selected' : ''; ?>>Closed</option>
+                            </select>
+                            <select name="priority" class="form-control" onchange="this.form.submit()">
+                                <option value="all">All Priority</option>
+                                <option value="high" <?php echo $priority_filter === 'high' ? 'selected' : ''; ?>>High</option>
+                                <option value="medium" <?php echo $priority_filter === 'medium' ? 'selected' : ''; ?>>Medium</option>
+                                <option value="low" <?php echo $priority_filter === 'low' ? 'selected' : ''; ?>>Low</option>
+                            </select>
+                        </form>
+                    </div>
                 </div>
             </div>
             
@@ -272,5 +277,6 @@ try {
             </div>
         </div>
     </div>
+    <script src="<?php echo SITE_URL; ?>/admin/assets/js/admin-theme.js"></script>
 </body>
 </html>

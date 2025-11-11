@@ -161,11 +161,6 @@ include 'includes/header.php';
                             </button>
                         </div>
                         
-                        <!-- Secondary Actions -->
-                        <button class="btn btn-secondary btn-lg" style="width: 100%;" onclick="addToWishlist(<?php echo $product_id; ?>)">
-                            <i class="fas fa-heart"></i>
-                            Add to Wishlist
-                        </button>
                     <?php else: ?>
                         <a href="<?php echo SITE_URL; ?>/login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" class="btn btn-primary btn-lg" style="width: 100%; margin-bottom: 1rem; text-decoration: none; display: inline-block; text-align: center;">
                             <i class="fas fa-sign-in-alt"></i>
@@ -483,7 +478,13 @@ function updateCartCount() {
             const cartBadges = document.querySelectorAll('.cart-count');
             cartBadges.forEach(badge => {
                 badge.textContent = data.count;
-                badge.style.display = data.count > 0 ? 'flex' : 'none';
+                if (data.count > 0) {
+                    badge.style.display = 'flex';
+                    badge.classList.add('animate');
+                    setTimeout(() => badge.classList.remove('animate'), 600);
+                } else {
+                    badge.style.display = 'none';
+                }
             });
         }
     })
@@ -563,10 +564,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-function addToWishlist(productId) {
-    // Add to wishlist functionality
-    alert('Wishlist functionality coming soon!');
-}
 
 // Rating System Functions
 let selectedRating = 0;
@@ -833,59 +830,6 @@ function orderNow(productId) {
     });
 }
 
-// Add to Wishlist functionality
-function addToWishlist(productId) {
-    const button = event.target;
-    const originalText = button.innerHTML;
-    
-    // Show loading state
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-    button.disabled = true;
-    
-    fetch('<?php echo SITE_URL; ?>/api/wishlist.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            action: 'add',
-            product_id: productId
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Show success state
-            button.innerHTML = '<i class="fas fa-check"></i> Added to Wishlist!';
-            button.style.backgroundColor = 'var(--success-color)';
-            
-            showNotification('Product added to wishlist successfully!', 'success');
-            
-            // Reset button after 2 seconds
-            setTimeout(() => {
-                button.innerHTML = originalText;
-                button.style.backgroundColor = '';
-                button.disabled = false;
-            }, 2000);
-        } else if (data.message === 'Product already in wishlist') {
-            showNotification('Product is already in your wishlist!', 'info');
-            
-            // Reset button
-            button.innerHTML = originalText;
-            button.disabled = false;
-        } else {
-            throw new Error(data.message || 'Failed to add to wishlist');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Error: ' + error.message, 'error');
-        
-        // Reset button
-        button.innerHTML = originalText;
-        button.disabled = false;
-    });
-}
 
 </script>
 

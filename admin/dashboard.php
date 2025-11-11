@@ -6,7 +6,7 @@ require_once '../config/config.php';
 
 // Check if admin is logged in
 if (!is_admin_logged_in()) {
-    redirect('admin/dashboard.php');
+    redirect('login.php');
 }
 
 $database = new Database();
@@ -68,18 +68,6 @@ try {
     $top_products_stmt->execute();
     $top_products = $top_products_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Monthly revenue data (last 6 months)
-    $monthly_revenue_query = "SELECT 
-                             DATE_FORMAT(created_at, '%Y-%m') as month,
-                             COUNT(*) as orders,
-                             SUM(final_amount) as revenue
-                             FROM orders 
-                             WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-                             GROUP BY DATE_FORMAT(created_at, '%Y-%m')
-                             ORDER BY month DESC";
-    $monthly_revenue_stmt = $db->prepare($monthly_revenue_query);
-    $monthly_revenue_stmt->execute();
-    $monthly_revenue = $monthly_revenue_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (Exception $e) {
     $total_users = 0;
@@ -90,7 +78,6 @@ try {
     $recent_orders = [];
     $recent_users = [];
     $top_products = [];
-    $monthly_revenue = [];
 }
 
 // Admin helper functions are now in config.php
@@ -108,8 +95,6 @@ try {
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         /* Ensure CSS variables are loaded with fallbacks */
@@ -252,31 +237,6 @@ try {
             margin-bottom: 1rem;
         }
         
-        .chart-container {
-            background: var(--bg-primary);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            border: 1px solid var(--border-color);
-            margin-bottom: 2rem;
-            overflow: visible;
-            position: relative;
-            scroll-behavior: smooth;
-            contain: layout style;
-        }
-        
-        .chart-container canvas {
-            max-width: 100% !important;
-            max-height: 100% !important;
-            display: block;
-            position: relative;
-        }
-        
-        /* Prevent automatic scrolling on chart interactions */
-        .chart-container:focus,
-        .chart-container canvas:focus {
-            outline: none;
-            scroll-behavior: auto;
-        }
         
         .data-table {
             background: var(--bg-primary);
@@ -524,32 +484,6 @@ try {
                     </div>
                 </div>
                 
-                <!-- Charts Row -->
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="chart-container">
-                            <h5 style="color: var(--text-primary); margin-bottom: 1.5rem;">
-                                <i class="fas fa-chart-line"></i>
-                                Revenue Overview
-                            </h5>
-                            <div style="position: relative; height: 300px;">
-                                <canvas id="revenueChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-4">
-                        <div class="chart-container">
-                            <h5 style="color: var(--text-primary); margin-bottom: 1.5rem;">
-                                <i class="fas fa-chart-pie"></i>
-                                Order Status
-                            </h5>
-                            <div style="position: relative; height: 300px;">
-                                <canvas id="orderStatusChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 
                 <!-- Data Tables Row -->
                 <div class="row">
@@ -687,35 +621,9 @@ try {
     </div>
 
     <script>
-        // Theme toggle
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            const themeIcon = document.querySelector('[onclick="toggleTheme()"] i');
-            if (themeIcon) {
-                themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-            }
-            
-            // Force body background update
-            document.body.style.backgroundColor = newTheme === 'dark' ? '#1e293b' : '#f8fafc';
-            document.body.style.color = newTheme === 'dark' ? '#f8fafc' : '#1e293b';
-        }
-
-        // Initialize theme
+        // Dashboard-specific initialization
         document.addEventListener('DOMContentLoaded', function() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            
-            const themeIcon = document.querySelector('[onclick="toggleTheme()"] i');
-            if (themeIcon) {
-                themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-            }
-            
-            // Ensure body has proper background
+            // Ensure body has proper background for dashboard
             document.body.style.backgroundColor = 'var(--bg-secondary)';
             document.body.style.color = 'var(--text-primary)';
         });
@@ -728,184 +636,13 @@ try {
             sidebar.classList.toggle('show');
         }
 
-        // Revenue Chart
-        const revenueCanvas = document.getElementById('revenueChart');
-        const revenueCtx = revenueCanvas.getContext('2d');
-        
-        // Set fixed canvas size to prevent automatic growth
-        revenueCanvas.style.width = '100%';
-        revenueCanvas.style.height = '300px';
-        
-        const revenueChart = new Chart(revenueCtx, {
-            type: 'line',
-            data: {
-                labels: [<?php 
-                    $months = array_reverse($monthly_revenue);
-                    echo "'" . implode("', '", array_map(function($m) { 
-                        return date('M Y', strtotime($m['month'] . '-01')); 
-                    }, $months)) . "'";
-                ?>],
-                datasets: [{
-                    label: 'Revenue',
-                    data: [<?php echo implode(', ', array_map(function($m) { return $m['revenue'] ?? 0; }, $months)); ?>],
-                    borderColor: 'rgb(59, 130, 246)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                },
-                layout: {
-                    padding: {
-                        top: 10,
-                        bottom: 10,
-                        left: 10,
-                        right: 10
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return 'Revenue: ₹' + context.parsed.y.toLocaleString('en-IN');
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '₹' + value.toLocaleString('en-IN');
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // Order Status Chart
-        const orderStatusCanvas = document.getElementById('orderStatusChart');
-        const orderStatusCtx = orderStatusCanvas.getContext('2d');
-        
-        // Set fixed canvas size to prevent automatic growth
-        orderStatusCanvas.style.width = '100%';
-        orderStatusCanvas.style.height = '300px';
-        
-        const orderStatusChart = new Chart(orderStatusCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Completed', 'Pending', 'Processing', 'Cancelled'],
-                datasets: [{
-                    data: [60, 20, 15, 5], // Sample data - replace with actual
-                    backgroundColor: [
-                        'rgb(16, 185, 129)',
-                        'rgb(245, 158, 11)',
-                        'rgb(59, 130, 246)',
-                        'rgb(239, 68, 68)'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                },
-                layout: {
-                    padding: {
-                        top: 10,
-                        bottom: 10,
-                        left: 10,
-                        right: 10
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
 
         // Auto-refresh dashboard data every 5 minutes
         setInterval(() => {
             location.reload();
         }, 300000);
         
-        // Prevent chart resize on window resize
-        window.addEventListener('resize', function() {
-            if (revenueChart) {
-                revenueChart.resize();
-                // Ensure canvas doesn't grow beyond container
-                const revenueCanvas = document.getElementById('revenueChart');
-                if (revenueCanvas) {
-                    revenueCanvas.style.maxWidth = '100%';
-                    revenueCanvas.style.maxHeight = '300px';
-                }
-            }
-            
-            if (orderStatusChart) {
-                orderStatusChart.resize();
-                // Ensure canvas doesn't grow beyond container
-                const orderCanvas = document.getElementById('orderStatusChart');
-                if (orderCanvas) {
-                    orderCanvas.style.maxWidth = '100%';
-                    orderCanvas.style.maxHeight = '300px';
-                }
-            }
-        });
         
-        // Prevent automatic scrolling on chart interactions
-        function preventChartScroll() {
-            const chartContainers = document.querySelectorAll('.chart-container');
-            const chartCanvases = document.querySelectorAll('.chart-container canvas');
-            
-            // Prevent scroll on chart container focus
-            chartContainers.forEach(container => {
-                container.addEventListener('focus', function(e) {
-                    e.preventDefault();
-                    return false;
-                });
-                
-                container.addEventListener('scroll', function(e) {
-                    e.preventDefault();
-                    this.scrollTop = 0;
-                    this.scrollLeft = 0;
-                    return false;
-                });
-            });
-            
-            // Prevent scroll on canvas interactions
-            chartCanvases.forEach(canvas => {
-                canvas.addEventListener('wheel', function(e) {
-                    e.preventDefault();
-                    return false;
-                });
-                
-                canvas.addEventListener('touchmove', function(e) {
-                    e.preventDefault();
-                    return false;
-                });
-                
-                canvas.addEventListener('focus', function(e) {
-                    e.preventDefault();
-                    return false;
-                });
-            });
-        }
-        
-        // Initialize scroll prevention after charts are loaded
-        setTimeout(preventChartScroll, 1000);
 
         // Real-time clock
         function updateClock() {
@@ -915,5 +652,6 @@ try {
         }
         setInterval(updateClock, 10000);
     </script>
+    <script src="<?php echo SITE_URL; ?>/admin/assets/js/admin-theme.js"></script>
 </body>
 </html>

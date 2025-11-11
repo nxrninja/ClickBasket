@@ -62,7 +62,7 @@ try {
             <?php if (is_logged_in()): ?>
                 <a href="cart.php" class="btn-icon" style="position: relative;">
                     <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count" style="position: absolute; top: -5px; right: -5px; background: var(--danger-color); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center;">0</span>
+                    <span class="cart-count">0</span>
                 </a>
             <?php endif; ?>
         </div>
@@ -107,11 +107,17 @@ try {
                         <i class="fas fa-moon"></i>
                     </button>
                     
+                    <!-- Admin Sign-in Button -->
+                    <a href="<?php echo SITE_URL; ?>/admin/login.php" class="btn btn-outline-primary btn-sm" title="Admin Login">
+                        <i class="fas fa-shield-alt"></i>
+                        Admin
+                    </a>
+                    
                     <?php if (is_logged_in()): ?>
                         <!-- Cart -->
                         <a href="<?php echo SITE_URL; ?>/cart.php" class="btn btn-secondary btn-sm" style="position: relative;">
                             <i class="fas fa-shopping-cart"></i>
-                            <span class="cart-count" style="position: absolute; top: -5px; right: -5px; background: var(--danger-color); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center;">0</span>
+                            <span class="cart-count">0</span>
                         </a>
                         
                         <!-- User Menu -->
@@ -126,9 +132,6 @@ try {
                                 </a>
                                 <a href="<?php echo SITE_URL; ?>/orders.php" class="dropdown-item">
                                     <i class="fas fa-box"></i> My Orders
-                                </a>
-                                <a href="<?php echo SITE_URL; ?>/wishlist.php" class="dropdown-item">
-                                    <i class="fas fa-heart"></i> My Wishlist
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a href="<?php echo SITE_URL; ?>/logout.php" class="dropdown-item">

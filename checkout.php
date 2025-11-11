@@ -125,6 +125,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } catch (Exception $e) {
                 // If billing table doesn't exist, we'll store as JSON in a notes field or skip for now
                 error_log("Billing info storage failed: " . $e->getMessage());
+                error_log("Order ID: $order_id, User ID: " . get_current_user_id());
+                
+                // Don't fail the entire order if billing fails
+                // Just log the error and continue
             }
             
             // Create order items
@@ -149,6 +153,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $db->commit();
             
+            // Log successful order creation
+            error_log("Order created successfully: Order ID $order_id, Order Number $order_number, User ID " . get_current_user_id());
+            
+            // Store success info in session
+            $_SESSION['last_order'] = [
+                'id' => $order_id,
+                'number' => $order_number,
+                'amount' => $total,
+                'timestamp' => date('Y-m-d H:i:s')
+            ];
+            
             // Redirect based on payment method
             if ($payment_method === 'cod') {
                 handle_success('Order placed successfully! You will pay cash on delivery.');
@@ -163,7 +178,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->rollBack();
             error_log("Order creation failed: " . $e->getMessage());
             error_log("Stack trace: " . $e->getTraceAsString());
-            handle_error('Failed to create order: ' . $e->getMessage() . '. Please try again or contact support.');
+            error_log("User ID: " . get_current_user_id());
+            error_log("Order data: " . json_encode([
+                'order_number' => $order_number ?? 'N/A',
+                'total' => $total ?? 'N/A',
+                'payment_method' => $payment_method ?? 'N/A'
+            ]));
+            
+            // Store error in session for debugging
+            $_SESSION['checkout_error'] = [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'timestamp' => date('Y-m-d H:i:s')
+            ];
+            
+            handle_error('Failed to create order: ' . $e->getMessage() . '. Please try again or contact support. Error logged for debugging.');
         }
     } else {
         foreach ($errors as $error) {

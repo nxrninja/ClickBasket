@@ -429,10 +429,15 @@ try {
             <!-- Header -->
             <div class="admin-header">
                 <h1 style="color: var(--text-primary); margin: 0;">Products Management</h1>
-                <button onclick="toggleAddForm()" class="btn btn-primary">
-                    <i class="fas fa-plus"></i>
-                    Add Product
-                </button>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button onclick="toggleTheme()" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button onclick="toggleAddForm()" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add Product
+                    </button>
+                </div>
             </div>
             
             <!-- Content -->
@@ -695,5 +700,6 @@ try {
             }
         }, 300000);
     </script>
+    <script src="<?php echo SITE_URL; ?>/admin/assets/js/admin-theme.js"></script>
 </body>
 </html>

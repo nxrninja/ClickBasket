@@ -6,7 +6,7 @@ require_once '../config/config.php';
 
 // Redirect if already logged in as admin
 if (is_admin_logged_in()) {
-    header("Location: admin/dashboard.php");
+    header("Location: dashboard.php");
     exit();
 }
 
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Continue even if logging fails
                 }
                 
-                handle_success('Welcome back, ' . $admin['name'] . '!', 'admin/dashboard.php');
+                handle_success('Welcome back, ' . $admin['name'] . '!', 'dashboard.php');
             } else {
                 $errors['general'] = 'Invalid email or password';
                 
@@ -170,12 +170,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .theme-toggle:hover {
             background: rgba(255,255,255,0.3);
         }
+        
+        .direct-login-btn {
+            position: absolute;
+            top: 4rem;
+            right: 1rem;
+            background: rgba(34, 197, 94, 0.9);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 0.5rem;
+            padding: 0.4rem 0.6rem;
+            color: white;
+            text-decoration: none;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .direct-login-btn:hover {
+            background: rgba(34, 197, 94, 1);
+            transform: translateY(-1px);
+        }
+        
+        .direct-login-btn i {
+            font-size: 0.7rem;
+        }
     </style>
 </head>
 <body>
     <button class="theme-toggle" onclick="toggleTheme()">
         <i class="fas fa-moon"></i>
     </button>
+
+    <?php if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false): ?>
+        <a href="direct-login.php" class="direct-login-btn">
+            <i class="fas fa-rocket"></i>
+            Dev Login
+        </a>
+    <?php endif; ?>
 
     <div class="admin-login-container">
         <div class="admin-card">
@@ -291,25 +325,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <!-- Default Credentials Notice (Development Only) -->
-        <?php if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false): ?>
-            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning-color); border-radius: 0.5rem; padding: 1rem; margin-top: 1rem; text-align: center;">
-                <div style="color: var(--warning-color); margin-bottom: 0.5rem;">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <strong>Development Mode</strong>
-                </div>
-                <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
-                    Current admin credentials:<br>
-                    <strong>Email:</strong> pappuali548@gmail.com<br>
-                    <strong>Password:</strong> 700121@Pappu<br>
-                    <em>These are your custom credentials!</em>
-                </p>
-                <a href="direct-login.php" class="btn btn-success btn-sm" style="background: var(--success-color); color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 0.25rem; display: inline-block;">
-                    <i class="fas fa-rocket"></i>
-                    Direct Login (Skip Form)
-                </a>
-            </div>
-        <?php endif; ?>
     </div>
 
     <script>

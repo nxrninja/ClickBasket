@@ -168,7 +168,13 @@ class ClickBasket {
             const cartBadges = document.querySelectorAll('.cart-count');
             cartBadges.forEach(badge => {
                 badge.textContent = result.count || 0;
-                badge.style.display = result.count > 0 ? 'block' : 'none';
+                if (result.count > 0) {
+                    badge.style.display = 'flex';
+                    badge.classList.add('animate');
+                    setTimeout(() => badge.classList.remove('animate'), 600);
+                } else {
+                    badge.style.display = 'none';
+                }
             });
         } catch (error) {
             console.error('Failed to update cart count:', error);

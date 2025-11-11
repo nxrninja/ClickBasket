@@ -195,20 +195,25 @@ try {
         <div class="admin-main">
             <div class="admin-header">
                 <h1 style="color: var(--text-primary); margin: 0;">Downloads Management</h1>
-                <div class="filter-controls">
-                    <form method="GET" style="display: flex; gap: 0.5rem; align-items: center;">
-                        <select name="status" class="form-control" style="width: auto;" onchange="this.form.submit()">
-                            <option value="" <?php echo !$status_filter ? 'selected' : ''; ?>>All Status</option>
-                            <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
-                            <option value="expired" <?php echo $status_filter === 'expired' ? 'selected' : ''; ?>>Expired</option>
-                            <option value="exhausted" <?php echo $status_filter === 'exhausted' ? 'selected' : ''; ?>>Exhausted</option>
-                        </select>
-                        <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Search downloads..." class="form-control" style="width: 200px;">
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
-                        <?php if ($search || $status_filter): ?>
-                            <a href="downloads.php" class="btn btn-secondary"><i class="fas fa-times"></i></a>
-                        <?php endif; ?>
-                    </form>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button onclick="toggleTheme()" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="filter-controls">
+                        <form method="GET" style="display: flex; gap: 0.5rem; align-items: center;">
+                            <select name="status" class="form-control" style="width: auto;" onchange="this.form.submit()">
+                                <option value="" <?php echo !$status_filter ? 'selected' : ''; ?>>All Status</option>
+                                <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
+                                <option value="expired" <?php echo $status_filter === 'expired' ? 'selected' : ''; ?>>Expired</option>
+                                <option value="exhausted" <?php echo $status_filter === 'exhausted' ? 'selected' : ''; ?>>Exhausted</option>
+                            </select>
+                            <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Search downloads..." class="form-control" style="width: 200px;">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                            <?php if ($search || $status_filter): ?>
+                                <a href="downloads.php" class="btn btn-secondary"><i class="fas fa-times"></i></a>
+                            <?php endif; ?>
+                        </form>
+                    </div>
                 </div>
             </div>
             
@@ -421,5 +426,6 @@ try {
             </div>
         </div>
     </div>
+    <script src="<?php echo SITE_URL; ?>/admin/assets/js/admin-theme.js"></script>
 </body>
 </html>

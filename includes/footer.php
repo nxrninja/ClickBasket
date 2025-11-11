@@ -15,7 +15,7 @@
                 <a href="<?php echo SITE_URL; ?>/cart.php" class="mobile-nav-item <?php echo $current_page === 'cart' ? 'active' : ''; ?>" style="position: relative;">
                     <i class="fas fa-shopping-cart mobile-nav-icon"></i>
                     <span class="mobile-nav-text">Cart</span>
-                    <span class="cart-count" style="position: absolute; top: 5px; right: 15px; background: var(--danger-color); color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 0.6rem; display: flex; align-items: center; justify-content: center;">0</span>
+                    <span class="cart-count">0</span>
                 </a>
                 <a href="<?php echo SITE_URL; ?>/profile.php" class="mobile-nav-item <?php echo in_array($current_page, ['profile', 'orders', 'downloads']) ? 'active' : ''; ?>">
                     <i class="fas fa-user mobile-nav-icon"></i>

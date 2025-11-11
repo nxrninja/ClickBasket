@@ -159,9 +159,14 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
         <div class="admin-main">
             <div class="admin-header">
                 <h1 style="color: var(--text-primary); margin: 0;">Categories Management</h1>
-                <button onclick="toggleAddForm()" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Add Category
-                </button>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button onclick="toggleTheme()" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button onclick="toggleAddForm()" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Category
+                    </button>
+                </div>
             </div>
             
             <div style="padding: 2rem;">
@@ -291,6 +296,7 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
         </div>
     </div>
 
+    <script src="<?php echo SITE_URL; ?>/admin/assets/js/admin-theme.js"></script>
     <script>
         function toggleAddForm() {
             const form = document.getElementById('categoryForm');

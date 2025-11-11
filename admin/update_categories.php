@@ -222,9 +222,14 @@ try {
         <div class="admin-main">
             <div class="admin-header">
                 <h1 style="color: var(--text-primary); margin: 0;">Update Categories to E-commerce</h1>
-                <a href="categories.php" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Back to Categories
-                </a>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button onclick="toggleTheme()" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="categories.php" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Categories
+                    </a>
+                </div>
             </div>
             
             <div style="padding: 2rem;">
@@ -348,5 +353,6 @@ try {
             </div>
         </div>
     </div>
+    <script src="<?php echo SITE_URL; ?>/admin/assets/js/admin-theme.js"></script>
 </body>
 </html>

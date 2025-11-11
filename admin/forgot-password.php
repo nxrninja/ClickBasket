@@ -6,7 +6,7 @@ require_once '../config/config.php';
 
 // Redirect if already logged in as admin
 if (is_admin_logged_in()) {
-    redirect('../admin/dashboard.php');
+    redirect('dashboard.php');
 }
 
 $errors = [];
