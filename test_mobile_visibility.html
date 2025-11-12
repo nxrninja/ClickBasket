@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile App Bar Visibility Test</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Debug styles */
+        .debug-info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 10000;
+        }
+        
+        /* Force mobile view for testing */
+        @media (min-width: 768px) {
+            .force-mobile .mobile-appbar {
+                display: flex !important;
+            }
+            .force-mobile .desktop-nav {
+                display: none !important;
+            }
+        }
+        
+        body {
+            margin: 0;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .content {
+            padding: 2rem;
+            margin-top: 20px;
+        }
+        
+        .test-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="force-mobile">
+    <!-- Mobile App Bar (exactly as in header.php) -->
+    <div class="mobile-appbar">
+        <div class="mobile-appbar-title">
+            ClickBasket Test
+        </div>
+        <div class="mobile-appbar-actions">
+            <button class="theme-toggle btn-icon">
+                <i class="fas fa-moon"></i>
+            </button>
+            <a href="#" class="btn-icon" style="position: relative;">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">5</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Desktop Navigation (should be hidden) -->
+    <nav class="desktop-nav">
+        <div class="container">
+            <div class="navbar">
+                <span>Desktop Nav (should be hidden on mobile)</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="content">
+        <h1>Mobile App Bar Visibility Test</h1>
+        
+        <div style="background: var(--bg-secondary); padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h2>Test Instructions:</h2>
+            <ol>
+                <li><strong>Mobile App Bar:</strong> Should be visible at the top with title and buttons</li>
+                <li><strong>Theme Toggle:</strong> Purple border button with moon/sun icon</li>
+                <li><strong>Cart Button:</strong> Purple border button with cart icon and red badge "5"</li>
+                <li><strong>Desktop Nav:</strong> Should be hidden on mobile</li>
+            </ol>
+        </div>
+
+        <button class="test-button" onclick="toggleTheme()">Test Theme Toggle</button>
+        <button class="test-button" onclick="showDebugInfo()">Show Debug Info</button>
+        
+        <div id="test-results" style="margin-top: 20px; padding: 15px; background: var(--bg-secondary); border-radius: 8px;">
+            <h3>Test Results:</h3>
+            <div id="results-content">Click "Show Debug Info" to see current state</div>
+        </div>
+    </div>
+
+    <div class="debug-info" id="debug-info">
+        Screen: <span id="screen-size"></span><br>
+        Mobile Bar: <span id="mobile-bar-visible"></span><br>
+        Desktop Nav: <span id="desktop-nav-visible"></span><br>
+        Theme: <span id="current-theme"></span>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        function updateDebugInfo() {
+            const mobileBar = document.querySelector('.mobile-appbar');
+            const desktopNav = document.querySelector('.desktop-nav');
+            const theme = document.documentElement.getAttribute('data-theme');
+            
+            document.getElementById('screen-size').textContent = `${window.innerWidth}x${window.innerHeight}`;
+            document.getElementById('mobile-bar-visible').textContent = 
+                window.getComputedStyle(mobileBar).display !== 'none' ? 'YES' : 'NO';
+            document.getElementById('desktop-nav-visible').textContent = 
+                window.getComputedStyle(desktopNav).display !== 'none' ? 'YES' : 'NO';
+            document.getElementById('current-theme').textContent = theme;
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            
+            // Update theme icons
+            const themeIcons = document.querySelectorAll('.theme-toggle i');
+            themeIcons.forEach(icon => {
+                icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            });
+            
+            updateDebugInfo();
+        }
+
+        function showDebugInfo() {
+            const mobileBar = document.querySelector('.mobile-appbar');
+            const themeToggle = document.querySelector('.mobile-appbar .theme-toggle');
+            const cartBtn = document.querySelector('.mobile-appbar .btn-icon');
+            
+            const results = `
+                <strong>Mobile App Bar Status:</strong><br>
+                • Display: ${window.getComputedStyle(mobileBar).display}<br>
+                • Visibility: ${window.getComputedStyle(mobileBar).visibility}<br>
+                • Opacity: ${window.getComputedStyle(mobileBar).opacity}<br>
+                • Z-index: ${window.getComputedStyle(mobileBar).zIndex}<br><br>
+                
+                <strong>Theme Toggle Button:</strong><br>
+                • Display: ${window.getComputedStyle(themeToggle).display}<br>
+                • Background: ${window.getComputedStyle(themeToggle).backgroundColor}<br>
+                • Border: ${window.getComputedStyle(themeToggle).border}<br>
+                • Color: ${window.getComputedStyle(themeToggle).color}<br><br>
+                
+                <strong>Cart Button:</strong><br>
+                • Display: ${window.getComputedStyle(cartBtn).display}<br>
+                • Background: ${window.getComputedStyle(cartBtn).backgroundColor}<br>
+                • Border: ${window.getComputedStyle(cartBtn).border}<br>
+            `;
+            
+            document.getElementById('results-content').innerHTML = results;
+        }
+
+        // Update debug info on load and resize
+        window.addEventListener('load', updateDebugInfo);
+        window.addEventListener('resize', updateDebugInfo);
+        
+        // Initial update
+        updateDebugInfo();
+    </script>
+</body>
+</html>

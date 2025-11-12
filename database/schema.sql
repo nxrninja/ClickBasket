@@ -1,8 +1,8 @@
 -- ClickBasket Digital Products Store Database Schema
 -- Created for XAMPP/MySQL environment
 
-CREATE DATABASE IF NOT EXISTS clickbasket;
-USE clickbasket;
+CREATE DATABASE IF NOT EXISTS cpfr_40391125_clickbasket;
+USE cpfr_40391125_clickbasket;
 
 -- Users table
 CREATE TABLE users (

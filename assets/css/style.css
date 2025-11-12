@@ -401,6 +401,32 @@ body {
   top: 0;
   z-index: 999;
   box-shadow: var(--shadow-sm);
+  width: 100%;
+}
+
+/* Show mobile app bar on mobile devices only */
+@media (max-width: 767px) {
+  .mobile-appbar {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* Ensure desktop nav is hidden on mobile */
+  .desktop-nav {
+    display: none !important;
+  }
+}
+
+/* Additional mobile app bar visibility rules */
+.mobile-appbar {
+  min-height: 60px;
+}
+
+.mobile-appbar-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
 }
 
 .mobile-appbar-title {
@@ -409,10 +435,6 @@ body {
   color: var(--text-primary);
 }
 
-.mobile-appbar-actions {
-  display: flex;
-  gap: 0.5rem;
-}
 
 /* Buttons */
 .btn {
@@ -1584,12 +1606,55 @@ body {
 
 /* Mobile app bar theme toggle */
 .mobile-appbar .theme-toggle {
-  border: none;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  border: 2px solid var(--primary-color) !important;
+  background: var(--bg-primary) !important;
+  color: var(--primary-color) !important;
+  border-radius: 0.5rem;
+  width: 44px;
+  height: 44px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
 }
 
-.mobile-appbar .theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+.mobile-appbar .btn-icon {
+  border: 2px solid var(--primary-color);
+  background: var(--bg-primary);
+  color: var(--primary-color);
+  border-radius: 0.5rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.mobile-appbar .theme-toggle:hover,
+.mobile-appbar .btn-icon:hover {
+  background: var(--primary-color) !important;
+  color: white !important;
+  border-color: var(--primary-color) !important;
+  transform: scale(1.05);
+}
+
+/* Dark theme adjustments for mobile app bar */
+[data-theme="dark"] .mobile-appbar .theme-toggle,
+[data-theme="dark"] .mobile-appbar .btn-icon {
+  background: var(--dark-bg-primary) !important;
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+[data-theme="dark"] .mobile-appbar .theme-toggle:hover,
+[data-theme="dark"] .mobile-appbar .btn-icon:hover {
+  background: var(--primary-color) !important;
+  color: white !important;
+  border-color: var(--primary-color) !important;
 }

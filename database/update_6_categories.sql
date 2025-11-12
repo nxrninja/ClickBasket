@@ -1,7 +1,7 @@
 -- ClickBasket Simple 6 Categories Update
 -- Updates to: Fashion, Mobile, Beauty, Electronics, Toys, Furniture
 
-USE clickbasket;
+USE cpfr_40391125_clickbasket;
 
 -- Backup existing categories (optional)
 CREATE TABLE IF NOT EXISTS categories_backup_simple AS SELECT * FROM categories;

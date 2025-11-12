@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Continue even if logging fails
                 }
                 
-                handle_success('Welcome back, ' . $admin['name'] . '!', 'dashboard.php');
+                handle_success('Welcome back, ' . $admin['name'] . '!', 'admin/dashboard.php');
             } else {
                 $errors['general'] = 'Invalid email or password';
                 

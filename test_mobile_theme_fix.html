@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Theme Toggle Test - ClickBasket</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .test-content {
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .mobile-only {
+            display: block;
+        }
+        
+        @media (min-width: 768px) {
+            .mobile-only {
+                display: none;
+            }
+        }
+        
+        .desktop-info {
+            display: none;
+            background: var(--warning-color-light);
+            color: var(--warning-color);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            .desktop-info {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile App Bar (same as in header.php) -->
+    <div class="mobile-appbar">
+        <div class="mobile-appbar-title">
+            ClickBasket Test
+        </div>
+        <div class="mobile-appbar-actions">
+            <button class="theme-toggle btn-icon">
+                <i class="fas fa-moon"></i>
+            </button>
+            <a href="#" class="btn-icon" style="position: relative;">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">3</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="test-content">
+        <div class="desktop-info">
+            <strong>Desktop View:</strong> Please resize your browser window to mobile width (< 768px) or use mobile device emulation to test the mobile app bar theme toggle button.
+        </div>
+
+        <div class="test-section">
+            <h2>Mobile Theme Toggle Fix Test</h2>
+            <p>This page tests the mobile app bar theme toggle button visibility fix.</p>
+            
+            <div class="mobile-only">
+                <h3>✅ Mobile View Detected</h3>
+                <p>You should see a mobile app bar at the top with:</p>
+                <ul>
+                    <li><strong>Theme Toggle Button:</strong> Should be clearly visible with proper contrast</li>
+                    <li><strong>Cart Button:</strong> With a red badge showing "3"</li>
+                </ul>
+                
+                <p><strong>Test Instructions:</strong></p>
+                <ol>
+                    <li>Click the theme toggle button (moon/sun icon) in the mobile app bar</li>
+                    <li>The theme should switch between light and dark modes</li>
+                    <li>The button should remain visible in both themes</li>
+                    <li>The icon should change from moon (light mode) to sun (dark mode)</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>Theme Toggle Buttons</h3>
+            <p>Additional theme toggle buttons for testing:</p>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="theme-toggle" style="background: var(--primary-color); color: white;">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>Current Theme Status</h3>
+            <p id="theme-status">Loading...</p>
+            <p><strong>Background:</strong> <span id="bg-color">Loading...</span></p>
+            <p><strong>Text Color:</strong> <span id="text-color">Loading...</span></p>
+        </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        // Additional test functionality
+        function updateThemeStatus() {
+            const theme = document.documentElement.getAttribute('data-theme');
+            const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary');
+            const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-primary');
+            
+            document.getElementById('theme-status').textContent = `Current theme: ${theme}`;
+            document.getElementById('bg-color').textContent = bgColor.trim();
+            document.getElementById('text-color').textContent = textColor.trim();
+        }
+
+        // Update status on load and theme change
+        document.addEventListener('DOMContentLoaded', updateThemeStatus);
+        
+        // Monitor theme changes
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+                    updateThemeStatus();
+                }
+            });
+        });
+        
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
+        });
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 session_start();
 
 // Site configuration
-define('SITE_URL', 'http://localhost/ClickBasket');
+define('SITE_URL', 'http://pali.c0m.in/ClickBasket');
 define('SITE_NAME', 'ClickBasket');
 define('ADMIN_EMAIL', 'admin@clickbasket.com');
 

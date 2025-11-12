@@ -162,7 +162,16 @@ try {
                                FROM orders WHERE user_id = ?";
         $status_counts_stmt = $db->prepare($status_counts_query);
         $status_counts_stmt->execute([$current_user_id]);
-        $status_counts = $status_counts_stmt->fetch(PDO::FETCH_ASSOC);
+        $db_status_counts = $status_counts_stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Merge with default values to ensure all keys exist
+        if ($db_status_counts) {
+            // Ensure all count values are integers, not null
+            foreach ($db_status_counts as $key => $value) {
+                $db_status_counts[$key] = (int)$value;
+            }
+            $status_counts = array_merge($status_counts, $db_status_counts);
+        }
     }
 } catch (Exception $e) {
     $debug_info[] = "Status counts error: " . $e->getMessage();
@@ -184,6 +193,18 @@ if (isset($_SESSION['checkout_error'])) {
 }
 if (isset($_SESSION['last_order']) && isset($_GET['clear_debug'])) {
     unset($_SESSION['last_order']);
+}
+
+// Debug status counts (remove this after fixing)
+if (isset($_GET['debug_status'])) {
+    echo "<div class='container'><div class='alert alert-info'>";
+    echo "<h4>Debug Status Counts:</h4>";
+    echo "<pre>";
+    print_r($status_counts);
+    echo "</pre>";
+    echo "<p><strong>User ID:</strong> " . $current_user_id . "</p>";
+    echo "<p><a href='debug_order_status.php' target='_blank'>Full Debug Report</a></p>";
+    echo "</div></div>";
 }
 ?>
 
