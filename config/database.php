@@ -1,10 +1,10 @@
 <?php
 // Database configuration for ClickBasket
 class Database {
-    private $host = 'localhost';
-    private $db_name = 'clickbasket';
-    private $username = 'root';
-    private $password = '';
+    private $host = 'sql101.cpanelfree.com';
+    private $db_name = 'cpfr_40391125_clickbasket';
+    private $username = 'cpfr_40391125';
+    private $password = 'Mm47a7Tjp6';
     private $conn;
 
     public function getConnection() {

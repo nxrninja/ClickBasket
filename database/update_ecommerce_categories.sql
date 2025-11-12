@@ -1,7 +1,7 @@
 -- ClickBasket E-commerce Categories Update Script
 -- This script replaces existing categories with comprehensive e-commerce categories
 
-USE clickbasket;
+USE cpfr_40391125_clickbasket;
 
 -- First, let's backup existing categories (optional)
 -- CREATE TABLE categories_backup AS SELECT * FROM categories;
