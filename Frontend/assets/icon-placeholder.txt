@@ -1,0 +1,8 @@
+IMPORTANT: Please save your uploaded logo image as "icon.png" in this directory.
+
+The logo should be:
+- 1024x1024 pixels minimum
+- PNG format
+- Square aspect ratio
+
+Until you add the actual icon.png file, the build will fail.

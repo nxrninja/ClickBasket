@@ -1,0 +1,74 @@
+========================================
+CLICKBASKET - QUICK START UPLOAD GUIDE
+========================================
+
+FTP CREDENTIALS:
+-----------------
+Host: ftpupload.net
+Username: cpfr_40391125
+Password: Mm47a7Tjp6
+Port: 21
+
+DATABASE (Already Configured):
+-------------------------------
+Host: sql101.cpanelfree.com
+Database: cpfr_40391125_mobile_clickbasket
+Username: cpfr_40391125
+
+STEP-BY-STEP:
+--------------
+
+1. DOWNLOAD FILEZILLA
+   - Get it from: https://filezilla-project.org/
+   - Install and open
+
+2. CONNECT TO FTP
+   - Host: ftpupload.net
+   - Username: cpfr_40391125
+   - Password: Mm47a7Tjp6
+   - Port: 21
+   - Click "Quickconnect"
+
+3. BEFORE UPLOADING - UPDATE config/config.php:
+   Line 6: Change SITE_URL to your actual domain
+   Example: define('SITE_URL', 'http://yourdomain.com');
+
+4. UPLOAD FILES
+   - Left panel: Navigate to C:\xampp\htdocs\mobile_app\Mobile_app_ClickBasket
+   - Right panel: Navigate to public_html (or htdocs)
+   - Select ALL files and folders
+   - Drag from left to right
+   - Wait for upload to complete (may take 10-30 minutes)
+
+5. SET PERMISSIONS (in cPanel File Manager)
+   - uploads/ folder → 755
+   - uploads/products/ → 755
+   - uploads/screenshots/ → 755
+
+6. SETUP DATABASE
+   - Visit: http://yourdomain.com/setup_database.php
+   - Visit: http://yourdomain.com/setup_categories_and_products.php
+   - DELETE these files after running
+
+7. TEST YOUR SITE
+   - Visit: http://yourdomain.com
+   - Try registration and login
+   - Check if products display
+
+8. UPDATE MOBILE APP
+   - Update API URL in your React Native app
+   - Change to: http://yourdomain.com/api/
+
+IMPORTANT SECURITY:
+-------------------
+After upload, DELETE these files from server:
+- test_*.php
+- debug_*.php
+- setup_*.php (after running)
+
+NEED HELP?
+----------
+- Check CPANEL_UPLOAD_CHECKLIST.md for detailed guide
+- Check DEPLOYMENT_GUIDE.md for troubleshooting
+
+========================================
