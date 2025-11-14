@@ -91,6 +91,26 @@ function get_admin_name() {
     return $_SESSION['admin_name'] ?? 'Admin';
 }
 
+// Clear admin session data when user logs in
+function clear_admin_session() {
+    unset($_SESSION['admin_id']);
+    unset($_SESSION['admin_name']);
+    unset($_SESSION['admin_email']);
+    unset($_SESSION['admin_role']);
+}
+
+// Clear user session data when admin logs in
+function clear_user_session() {
+    unset($_SESSION['user_id']);
+    unset($_SESSION['user_name']);
+    unset($_SESSION['user_email']);
+}
+
+// Get user name for display
+function get_user_name() {
+    return $_SESSION['user_name'] ?? 'User';
+}
+
 function get_admin_role() {
     return $_SESSION['admin_role'] ?? 'admin';
 }

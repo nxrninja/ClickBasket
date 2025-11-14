@@ -27,6 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Attempt login
         if ($user->login()) {
+            // Clear any admin session data to prevent conflicts
+            clear_admin_session();
+            
             // Set session variables
             $_SESSION['user_id'] = $user->id;
             $_SESSION['user_name'] = $user->name;

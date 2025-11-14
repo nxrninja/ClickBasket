@@ -26,6 +26,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             handle_error('Failed to update user status.');
         }
     }
+    
+    if ($action === 'toggle_verified') {
+        $user_id = intval($_POST['user_id'] ?? 0);
+        $new_verified = intval($_POST['new_verified'] ?? 0);
+        
+        try {
+            $update_query = "UPDATE users SET is_verified = ? WHERE id = ?";
+            $stmt = $db->prepare($update_query);
+            $stmt->execute([$new_verified, $user_id]);
+            handle_success($new_verified ? 'User verified successfully!' : 'User verification removed!');
+        } catch (Exception $e) {
+            handle_error('Failed to update user verification status.');
+        }
+    }
 }
 
 // Get users with pagination
@@ -236,17 +250,30 @@ try {
                                                 <?php echo date('M j, Y', strtotime($user['created_at'])); ?>
                                             </td>
                                             <td style="padding: 0.75rem; border-bottom: 1px solid var(--border-color);">
-                                                <form method="POST" style="display: inline;">
-                                                    <input type="hidden" name="action" value="toggle_status">
-                                                    <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                                    <input type="hidden" name="new_status" value="<?php echo $user['is_active'] ? 0 : 1; ?>">
-                                                    <button type="submit" class="btn <?php echo $user['is_active'] ? 'btn-warning' : 'btn-success'; ?> btn-sm" 
-                                                            onclick="return confirm('<?php echo $user['is_active'] ? 'Deactivate' : 'Activate'; ?> this user?')">
-                                                        <i class="fas <?php echo $user['is_active'] ? 'fa-pause' : 'fa-play'; ?>"></i>
-                                                        <?php echo $user['is_active'] ? 'Deactivate' : 'Activate'; ?>
-                                                    </button>
-                                                </form>
-                                            </td>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <form method="POST" style="display: inline;">
+                                        <input type="hidden" name="action" value="toggle_status">
+                                        <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                        <input type="hidden" name="new_status" value="<?php echo $user['is_active'] ? 0 : 1; ?>">
+                                        <button type="submit" class="btn <?php echo $user['is_active'] ? 'btn-warning' : 'btn-success'; ?> btn-sm" 
+                                                onclick="return confirm('<?php echo $user['is_active'] ? 'Deactivate' : 'Activate'; ?> this user?')"
+                                                title="<?php echo $user['is_active'] ? 'Deactivate' : 'Activate'; ?> User">
+                                            <i class="fas <?php echo $user['is_active'] ? 'fa-pause' : 'fa-play'; ?>"></i>
+                                        </button>
+                                    </form>
+                                    
+                                    <form method="POST" style="display: inline;">
+                                        <input type="hidden" name="action" value="toggle_verified">
+                                        <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                        <input type="hidden" name="new_verified" value="<?php echo $user['is_verified'] ? 0 : 1; ?>">
+                                        <button type="submit" class="btn <?php echo $user['is_verified'] ? 'btn-info' : 'btn-outline-info'; ?> btn-sm" 
+                                                onclick="return confirm('<?php echo $user['is_verified'] ? 'Remove verification from' : 'Verify'; ?> this user?')"
+                                                title="<?php echo $user['is_verified'] ? 'Remove Verification' : 'Verify User'; ?>">
+                                            <i class="fas <?php echo $user['is_verified'] ? 'fa-certificate' : 'fa-certificate'; ?>"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>

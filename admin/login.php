@@ -40,6 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $admin = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($admin && password_verify($password, $admin['password'])) {
+                // Clear any user session data to prevent conflicts
+                clear_user_session();
+                
                 // Set admin session
                 $_SESSION['admin_id'] = $admin['id'];
                 $_SESSION['admin_name'] = $admin['name'];
