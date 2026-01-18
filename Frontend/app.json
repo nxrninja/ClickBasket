@@ -1,54 +1,41 @@
 {
   "expo": {
-    "name": "clickbasket",
+    "name": "ClickBasket",
     "slug": "clickbasket",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "clickbasket",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
     },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
-      },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "package": "com.subhadeep_bhattacharyya.clickbasket"
-    },
-    "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "backgroundColor": "#000000"
-          }
-        }
-      ]
+    "assetBundlePatterns": [
+      "**/*"
     ],
-    "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+    "android": {
+      "package": "com.clickbasket.mobile",
+      "versionCode": 2,
+      "icon": "./assets/images/icon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "INTERNET"
+      ]
     },
     "extra": {
-      "router": {},
       "eas": {
-        "projectId": "b5fbb8f1-bebb-4848-af3a-df9ab8e25499"
+        "projectId": "94a19c48-682a-47ca-94bc-2084a8ec443d"
+      }
+    },
+    "owner": "subhadeepbhattacharyya",
+    "ios": {
+      "bundleIdentifier": "com.clickbasket.mobile",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
       }
     }
   }

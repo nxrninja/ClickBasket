@@ -27,10 +27,16 @@ const API_CONFIGS = {
     DESCRIPTION: 'Use this with ngrok tunnel for external access'
   },
   
-  // For production
+  // For production (cPanel hosted)
   PRODUCTION: {
-    BASE_URL: 'http://pali.c0m.in/ClickBasket/api',
-    DESCRIPTION: 'Production server URL'
+    BASE_URL: 'https://pali.c0m.in/mobile_app/Mobile_app_Clickbasket/api',
+    DESCRIPTION: 'Production server on cPanel',
+    DATABASE: {
+      HOST: 'sql101.cpanelfree.com',
+      NAME: 'cpfr_40391125_mobile_clickbasket',
+      USER: 'cpfr_40391125',
+      PASSWORD: 'Mm47a7Tjp6' // Make sure this is your MySQL password
+    }
   }
 };
 
