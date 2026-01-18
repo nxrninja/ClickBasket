@@ -29,7 +29,7 @@ const API_CONFIGS = {
   
   // For production (cPanel hosted)
   PRODUCTION: {
-    BASE_URL: 'https://pali.c0m.in/mobile_app/Mobile_app_Clickbasket/api',
+    BASE_URL: 'http://pali.c0m.in/ClickBasket/api',
     DESCRIPTION: 'Production server on cPanel',
     DATABASE: {
       HOST: 'sql101.cpanelfree.com',
